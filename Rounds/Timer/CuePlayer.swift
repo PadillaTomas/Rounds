@@ -1,0 +1,182 @@
+import AudioToolbox
+import AVFoundation
+import CoreHaptics
+
+/// The timer's out-of-screen feedback — sound plus vibration. A protocol so the
+/// engine can be driven silently in tests and previews.
+protocol CuePlaying {
+    /// Bell — a round is starting (the first round, or after a rest).
+    func roundStarted()
+    /// Bell — the work period ended, rest begins.
+    func roundEnded()
+    /// Wooden clap — ten seconds left in the work period.
+    func tenSecondWarning()
+    /// End-of-fight bell — the last round finished.
+    func sessionFinished()
+    /// The timer screen appeared — grab the audio session, prime the haptics.
+    func sessionDidBegin()
+    /// The timer screen went away — release the audio session.
+    func sessionDidEnd()
+}
+
+extension CuePlaying {
+    func sessionFinished() { roundEnded() }
+    func sessionDidBegin() {}
+    func sessionDidEnd() {}
+}
+
+/// Plays the recorded bell / synthesised clap through the `.playback` session —
+/// heard with the ringer muted, riding the media-volume buttons — and fires a
+/// strong vibration alongside each cue.
+///
+/// The audio session is activated **once** for the whole workout and released
+/// once at the end (with `.notifyOthersOnDeactivation`, so any lowered music
+/// jumps straight back up). Every session call is on a background queue —
+/// `setActive` on the main thread stalls the UI — and Core Haptics is told
+/// `playsHapticsOnly` so it never touches the audio session itself.
+final class CuePlayer: CuePlaying {
+    /// When `true`, other apps' audio (music, podcasts) is lowered for the
+    /// duration of the workout so the cues sit on top. When `false`, cues just
+    /// mix in at full volume.
+    private let dimsOtherAudio: Bool
+
+    private let audioQueue = DispatchQueue(label: "com.padillatomas.rounds.audio-session")
+
+    init(dimsOtherAudio: Bool = true) {
+        self.dimsOtherAudio = dimsOtherAudio
+    }
+
+    /// Every bell — round start, round end, end of fight — is the same recorded
+    /// double bell-hit. Synth fallback only if the bundled file is missing.
+    private lazy var bell = BundledSound.player("final-bell", ext: "mp3", volume: 0.85)
+        ?? ToneSynth.bell(strikes: 3, gap: 0.01, decay: 1, volume: 1)
+    private lazy var warnClap = ToneSynth.clap(volume: 1)
+
+    private func play(_ player: AVAudioPlayer?) {
+        guard let player else { return }
+        player.currentTime = 0
+        player.play()
+    }
+
+    // MARK: CuePlaying
+
+    func roundStarted()     { play(bell); Haptics.buzz(0.45) }
+    func roundEnded()       { play(bell); Haptics.buzz(0.55) }
+    func tenSecondWarning() { play(warnClap); Haptics.tap(times: 3) }
+    func sessionFinished()  { play(bell); Haptics.buzz(0.4, times: 3) }
+
+    func sessionDidBegin() {
+        let dims = dimsOtherAudio
+        audioQueue.async {
+            let session = AVAudioSession.sharedInstance()
+            // `.playback` ignores the mute switch; `.mixWithOthers` keeps the
+            // fighter's music going, `.duckOthers` lowers it under the cues.
+            var options: AVAudioSession.CategoryOptions = [.mixWithOthers]
+            if dims { options.insert(.duckOthers) }
+            try? session.setCategory(.playback, mode: .default, options: options)
+            try? session.setActive(true)
+        }
+        [bell, warnClap].forEach { $0?.prepareToPlay() }
+        Haptics.prepare()
+    }
+
+    func sessionDidEnd() {
+        Haptics.stop()
+        audioQueue.async {
+            try? AVAudioSession.sharedInstance()
+                .setActive(false, options: .notifyOthersOnDeactivation)
+        }
+    }
+}
+
+/// Loads a bundled audio file (`Rounds/Rounds/Resources/Sounds/`).
+enum BundledSound {
+    static func player(_ name: String, ext: String, volume: Float) -> AVAudioPlayer? {
+        guard let url = Bundle.main.url(forResource: name, withExtension: ext),
+              let player = try? AVAudioPlayer(contentsOf: url) else { return nil }
+        player.volume = volume
+        player.prepareToPlay()
+        return player
+    }
+}
+
+/// No-op — the default in tests and previews.
+struct SilentCuePlayer: CuePlaying {
+    func roundStarted() {}
+    func roundEnded() {}
+    func tenSecondWarning() {}
+    func sessionFinished() {}
+}
+
+// MARK: - Haptics
+
+/// A full-strength rumble per cue, with the classic system vibration as a
+/// fallback on devices without Core Haptics. The engine is started once and left
+/// running (`playsHapticsOnly` so it doesn't manage an audio session); cues just
+/// hand it a pattern.
+enum Haptics {
+    private static let supported = CHHapticEngine.capabilitiesForHardware().supportsHaptics
+    private static var engine: CHHapticEngine?
+    /// Retained so it can be stopped *before* the engine — otherwise Core Haptics
+    /// logs an error when the engine is torn down mid-pattern.
+    private static var activePlayer: CHHapticPatternPlayer?
+
+    static func prepare() {
+        guard supported, engine == nil else { return }
+        guard let created = try? CHHapticEngine() else { return }
+        created.playsHapticsOnly = true          // never touches the audio session
+        created.isAutoShutdownEnabled = false
+        created.resetHandler = { [weak created] in try? created?.start() }
+        try? created.start()
+        engine = created
+    }
+
+    static func stop() {
+        try? activePlayer?.stop(atTime: CHHapticTimeImmediate)
+        activePlayer = nil
+        engine?.stop(completionHandler: nil)
+        engine = nil
+    }
+
+    /// One or more sustained buzzes — low sharpness so it reads as a vibration.
+    static func buzz(_ seconds: TimeInterval, times: Int = 1) {
+        let events = (0..<max(1, times)).map { i in
+            CHHapticEvent(eventType: .hapticContinuous, parameters: [
+                CHHapticEventParameter(parameterID: .hapticIntensity, value: 1),
+                CHHapticEventParameter(parameterID: .hapticSharpness, value: 0.35),
+            ], relativeTime: Double(i) * (seconds + 0.12), duration: seconds)
+        }
+        emit(events, fallbackCount: times)
+    }
+
+    /// Sharp taps — used for the ten-second clap.
+    static func tap(times: Int) {
+        let events = (0..<max(1, times)).map { i in
+            CHHapticEvent(eventType: .hapticTransient, parameters: [
+                CHHapticEventParameter(parameterID: .hapticIntensity, value: 1),
+                CHHapticEventParameter(parameterID: .hapticSharpness, value: 0.7),
+            ], relativeTime: Double(i) * 0.09)
+        }
+        emit(events, fallbackCount: times)
+    }
+
+    private static func emit(_ events: [CHHapticEvent], fallbackCount: Int) {
+        guard let engine else { return systemFallback(fallbackCount) }
+        do {
+            let pattern = try CHHapticPattern(events: events, parameters: [])
+            let player = try engine.makePlayer(with: pattern)
+            activePlayer = player
+            try player.start(atTime: CHHapticTimeImmediate)
+        } catch {
+            systemFallback(fallbackCount)
+        }
+    }
+
+    private static func systemFallback(_ times: Int) {
+        for i in 0..<max(1, times) {
+            DispatchQueue.main.asyncAfter(deadline: .now() + Double(i) * 0.5) {
+                AudioServicesPlaySystemSound(kSystemSoundID_Vibrate)
+            }
+        }
+    }
+}
