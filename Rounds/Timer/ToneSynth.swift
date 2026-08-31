@@ -31,6 +31,13 @@ enum ToneSynth {
         return player(out, volume: volume)
     }
 
+    /// A short buffer of pure silence. Looped, it keeps the audio session (and
+    /// so the timer's run loop) alive while the app is backgrounded / locked,
+    /// without making a sound.
+    static func silence(seconds: Double) -> AVAudioPlayer? {
+        player([Double](repeating: 0, count: Int(sampleRate * seconds)), volume: 1)
+    }
+
     /// Three quick wooden knocks — the ringside "ten seconds" clapper.
     static func clap(volume: Float) -> AVAudioPlayer? {
         let knock = 0.05, gap = 0.30, knocks = 3

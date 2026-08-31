@@ -37,16 +37,21 @@ targets:
         PRODUCT_BUNDLE_IDENTIFIER: com.padillatomas.Rounds
         INFOPLIST_KEY_UILaunchScreen_Generation: YES
         INFOPLIST_KEY_UISupportedInterfaceOrientations: UIInterfaceOrientationPortrait
-        INFOPLIST_KEY_UISupportedInterfaceOrientations~ipad: "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight"
         INFOPLIST_KEY_UIApplicationSceneManifest_Generation: YES
         INFOPLIST_KEY_CFBundleDisplayName: Rounds
         ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
         ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME: AccentColor
-        TARGETED_DEVICE_FAMILY: "1,2"
+        # iPhone only for v1 — an iPad build means an iPad layout pass + a
+        # separate App Store screenshot set (see RO-7). Revisit post-launch.
+        TARGETED_DEVICE_FAMILY: "1"
     info:
       path: Generated-Info.plist
       properties:
         UILaunchScreen: {}
+        # The workout timer keeps running with the screen locked / app in the
+        # background so the round bells still fire — CuePlayer plays a silent
+        # keep-alive loop for the duration of the workout.
+        UIBackgroundModes: [audio]
   RoundsTests:
     type: bundle.unit-test
     platform: iOS
