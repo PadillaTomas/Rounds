@@ -37,6 +37,12 @@ extension CuePlaying {
 /// session call is on a background queue — `setActive` on the main thread stalls
 /// the UI — and Core Haptics is told `playsHapticsOnly` so it never touches the
 /// audio session itself.
+///
+/// A **silent keep-alive loop** plays for the whole workout so the timer keeps
+/// ticking (and bells keep firing) with the screen locked or the app in the
+/// background — that's why the target declares `UIBackgroundModes: audio`.
+/// Audio-session interruptions (a phone call) re-activate the session and
+/// restart the loop when they end.
 final class CuePlayer: NSObject, CuePlaying, AVAudioPlayerDelegate {
     /// When `true`, other apps' audio (music, podcasts) is lowered for the
     /// duration of the workout so the cues sit on top. When `false`, cues just
@@ -52,10 +58,14 @@ final class CuePlayer: NSObject, CuePlaying, AVAudioPlayerDelegate {
     /// mid-ring) still plays to the end before the session is released.
     private static var ringingOut: CuePlayer?
 
+    private var interruptionObserver: NSObjectProtocol?
+
     init(dimsOtherAudio: Bool = true) {
         self.dimsOtherAudio = dimsOtherAudio
         super.init()
     }
+
+    deinit { stopObservingInterruptions() }
 
     /// Every bell — round start, round end, end of fight — is the same recorded
     /// double bell-hit. Synth fallback only if the bundled file is missing.
@@ -66,6 +76,13 @@ final class CuePlayer: NSObject, CuePlaying, AVAudioPlayerDelegate {
         return player
     }()
     private lazy var warnClap = ToneSynth.clap(volume: 1)
+
+    /// Inaudible; loops forever. Keeps the run loop alive in the background.
+    private lazy var keepAlive: AVAudioPlayer? = {
+        let player = ToneSynth.silence(seconds: 2)
+        player?.numberOfLoops = -1
+        return player
+    }()
 
     private func play(_ player: AVAudioPlayer?) {
         guard let player else { return }
@@ -92,6 +109,9 @@ final class CuePlayer: NSObject, CuePlaying, AVAudioPlayerDelegate {
             try? session.setActive(true)
         }
         [bell, warnClap].forEach { $0?.prepareToPlay() }
+        keepAlive?.prepareToPlay()
+        keepAlive?.play()
+        observeInterruptions()
         Haptics.prepare()
     }
 
@@ -108,6 +128,8 @@ final class CuePlayer: NSObject, CuePlaying, AVAudioPlayerDelegate {
     }
 
     private func teardown() {
+        keepAlive?.stop()
+        stopObservingInterruptions()
         Haptics.stop()
         audioQueue.async {
             try? AVAudioSession.sharedInstance()
@@ -122,6 +144,36 @@ final class CuePlayer: NSObject, CuePlaying, AVAudioPlayerDelegate {
         guard endAfterBell else { return }
         endAfterBell = false
         teardown()
+    }
+
+    // MARK: Interruptions
+
+    /// A phone call etc. deactivates our session and stops every player. When it
+    /// ends, bring the session and the keep-alive loop back so the workout keeps
+    /// running. (Cues missed *during* the call are caught up by the engine, which
+    /// is deadline-based — see `RoundTimerEngine`.)
+    private func observeInterruptions() {
+        guard interruptionObserver == nil else { return }
+        interruptionObserver = NotificationCenter.default.addObserver(
+            forName: AVAudioSession.interruptionNotification,
+            object: AVAudioSession.sharedInstance(),
+            queue: .main
+        ) { [weak self] note in
+            guard let self,
+                  let raw = note.userInfo?[AVAudioSessionInterruptionTypeKey] as? UInt,
+                  AVAudioSession.InterruptionType(rawValue: raw) == .ended
+            else { return }
+            self.audioQueue.async { try? AVAudioSession.sharedInstance().setActive(true) }
+            self.bell?.prepareToPlay()
+            self.keepAlive?.play()
+        }
+    }
+
+    private func stopObservingInterruptions() {
+        if let interruptionObserver {
+            NotificationCenter.default.removeObserver(interruptionObserver)
+        }
+        interruptionObserver = nil
     }
 }
 
@@ -147,31 +199,35 @@ struct SilentCuePlayer: CuePlaying {
 // MARK: - Haptics
 
 /// A full-strength rumble per cue, with the classic system vibration as a
-/// fallback on devices without Core Haptics. The engine is started once and left
-/// running (`playsHapticsOnly` so it doesn't manage an audio session); cues just
-/// hand it a pattern.
+/// fallback on devices without Core Haptics.
+///
+/// One long-lived engine (Apple's recommended shape): created lazily, marked
+/// `playsHapticsOnly` so it never manages an audio session, and
+/// `isAutoShutdownEnabled` so Core Haptics powers the hardware down between cues
+/// and back up on the next `start()`. We never call `engine.stop()` ourselves —
+/// doing that while a pattern was still playing logged
+/// `_Haptic_Check … stopWithCompletionHandler … error -4810` at the end of a
+/// workout. ``stop()`` only cancels an in-flight pattern.
 enum Haptics {
     private static let supported = CHHapticEngine.capabilitiesForHardware().supportsHaptics
     private static var engine: CHHapticEngine?
-    /// Retained so it can be stopped *before* the engine — otherwise Core Haptics
-    /// logs an error when the engine is torn down mid-pattern.
     private static var activePlayer: CHHapticPatternPlayer?
 
     static func prepare() {
-        guard supported, engine == nil else { return }
-        guard let created = try? CHHapticEngine() else { return }
-        created.playsHapticsOnly = true          // never touches the audio session
-        created.isAutoShutdownEnabled = false
-        created.resetHandler = { [weak created] in try? created?.start() }
-        try? created.start()
-        engine = created
+        guard supported else { return }
+        if engine == nil {
+            guard let created = try? CHHapticEngine() else { return }
+            created.playsHapticsOnly = true          // never touches the audio session
+            created.isAutoShutdownEnabled = true
+            created.resetHandler = { try? engine?.start() }
+            engine = created
+        }
+        try? engine?.start()
     }
 
     static func stop() {
         try? activePlayer?.stop(atTime: CHHapticTimeImmediate)
         activePlayer = nil
-        engine?.stop(completionHandler: nil)
-        engine = nil
     }
 
     /// One or more sustained buzzes — low sharpness so it reads as a vibration.
@@ -197,8 +253,9 @@ enum Haptics {
     }
 
     private static func emit(_ events: [CHHapticEvent], fallbackCount: Int) {
-        guard let engine else { return systemFallback(fallbackCount) }
+        guard supported, let engine else { return systemFallback(fallbackCount) }
         do {
+            try engine.start()          // no-op if running; restarts after auto-shutdown
             let pattern = try CHHapticPattern(events: events, parameters: [])
             let player = try engine.makePlayer(with: pattern)
             activePlayer = player
