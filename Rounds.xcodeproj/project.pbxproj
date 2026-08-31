@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		069E2748D1415CF6A5F0E013 /* RoundSequenceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = CDE072BCF0205898B2F7643F /* RoundSequenceTests.swift */; };
+		21672ADBF370C7AD5B4892B2 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = B90DB619BB09128127F3E734 /* PrivacyInfo.xcprivacy */; };
 		28BA9ED5E2CE8D90971787EB /* RoundsApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84D5E2CBCF2022821DAF3EA6 /* RoundsApp.swift */; };
 		2D291DBADF3A03529AA64912 /* UIWorkouts in Frameworks */ = {isa = PBXBuildFile; productRef = E51D216EFE1E59487DCFC462 /* UIWorkouts */; };
 		2F6D147358ED6803A1FE7577 /* CuePlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14E92A251BAA3A653BECFE74 /* CuePlayer.swift */; };
@@ -61,9 +62,10 @@
 		7D3255778EC7B67605B9E714 /* ToneSynth.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ToneSynth.swift; sourceTree = "<group>"; };
 		7EA12E134BB516E9533B2288 /* RootView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootView.swift; sourceTree = "<group>"; };
 		84D5E2CBCF2022821DAF3EA6 /* RoundsApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RoundsApp.swift; sourceTree = "<group>"; };
+		B90DB619BB09128127F3E734 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		C5263748403BDA3490FDE1F8 /* Copy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Copy.swift; sourceTree = "<group>"; };
 		CDE072BCF0205898B2F7643F /* RoundSequenceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RoundSequenceTests.swift; sourceTree = "<group>"; };
-		"TEMP_CA229B39-1A4A-4DDB-A6B3-67B3F1B451FC" /* Signing.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Signing.xcconfig; sourceTree = "<group>"; };
+		"TEMP_A930D091-70C5-4FEE-91C9-F730426B0CC0" /* Signing.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Signing.xcconfig; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -118,6 +120,7 @@
 			isa = PBXGroup;
 			children = (
 				19954A876539BD2B8B878A59 /* Assets.xcassets */,
+				B90DB619BB09128127F3E734 /* PrivacyInfo.xcprivacy */,
 				7EA12E134BB516E9533B2288 /* RootView.swift */,
 				84D5E2CBCF2022821DAF3EA6 /* RoundsApp.swift */,
 				1A14D6035C969EF5FF340661 /* Features */,
@@ -170,10 +173,10 @@
 			path = Resources;
 			sourceTree = "<group>";
 		};
-		"TEMP_CA8EE503-52CE-40DE-A75F-523784D60F64" /* Rounds */ = {
+		"TEMP_5546E1A7-E840-437D-BE45-6E58DBFC1501" /* Rounds */ = {
 			isa = PBXGroup;
 			children = (
-				"TEMP_CA229B39-1A4A-4DDB-A6B3-67B3F1B451FC" /* Signing.xcconfig */,
+				"TEMP_A930D091-70C5-4FEE-91C9-F730426B0CC0" /* Signing.xcconfig */,
 			);
 			path = Rounds;
 			sourceTree = "<group>";
@@ -268,6 +271,7 @@
 			files = (
 				78882DE3754C795C63674F68 /* Assets.xcassets in Resources */,
 				8EBC36168A68826E5E5972E8 /* Localizable.xcstrings in Resources */,
+				21672ADBF370C7AD5B4892B2 /* PrivacyInfo.xcprivacy in Resources */,
 				AA00FF7F6516E8718639CA75 /* final-bell.mp3 in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -340,7 +344,7 @@
 		};
 		5D11C9A88BB57B0EE133E13D /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = "TEMP_CA229B39-1A4A-4DDB-A6B3-67B3F1B451FC" /* Signing.xcconfig */;
+			baseConfigurationReference = "TEMP_A930D091-70C5-4FEE-91C9-F730426B0CC0" /* Signing.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				CLANG_ANALYZER_NONNULL = YES;
@@ -374,6 +378,7 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				CODE_SIGN_STYLE = Automatic;
 				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 1;
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
@@ -392,6 +397,7 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				MARKETING_VERSION = 1.0.0;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
@@ -439,7 +445,7 @@
 		};
 		A2D04D94B572F717A7F4482A /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = "TEMP_CA229B39-1A4A-4DDB-A6B3-67B3F1B451FC" /* Signing.xcconfig */;
+			baseConfigurationReference = "TEMP_A930D091-70C5-4FEE-91C9-F730426B0CC0" /* Signing.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				CLANG_ANALYZER_NONNULL = YES;
@@ -473,6 +479,7 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				CODE_SIGN_STYLE = Automatic;
 				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 1;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
@@ -485,6 +492,7 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				MARKETING_VERSION = 1.0.0;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				PRODUCT_NAME = "$(TARGET_NAME)";
