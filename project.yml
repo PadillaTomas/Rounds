@@ -17,10 +17,11 @@ settings:
     # (gitignored) generated project.
 packages:
   UIWorkouts:
-    # Pinned to a released tag for store builds. During UIWorkouts co-development
-    # swap this back to `path: ../UI-Workouts` so edits are live without a tag.
+    # Pinned exactly here (not via a committed Package.resolved — xcodebuild keeps
+    # rewriting that file). Bump this string to adopt a new UIWorkouts tag. During
+    # UIWorkouts co-development swap to `path: ../UI-Workouts` for live edits.
     url: https://github.com/PadillaTomas/UI-Workouts.git
-    from: "0.5.0"
+    exactVersion: "0.5.0"
 targets:
   Rounds:
     type: application

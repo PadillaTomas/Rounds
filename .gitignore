@@ -13,14 +13,10 @@ DerivedData/
 
 # XcodeGen output — the project is generated, not committed.
 # Run `xcodegen generate` after cloning or changing project.yml.
-# Only the SPM dependency pin is kept under version control.
+# The UIWorkouts version is pinned in project.yml (exactVersion), so no
+# Package.resolved is needed under version control.
 Generated-Info.plist
-/Rounds.xcodeproj/*
-!/Rounds.xcodeproj/project.xcworkspace
-/Rounds.xcodeproj/project.xcworkspace/*
-!/Rounds.xcodeproj/project.xcworkspace/xcshareddata
-/Rounds.xcodeproj/project.xcworkspace/xcshareddata/*
-!/Rounds.xcodeproj/project.xcworkspace/xcshareddata/swiftpm
+/Rounds.xcodeproj/
 
 # Swift Package Manager
 .build/
