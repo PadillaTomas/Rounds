@@ -12,14 +12,9 @@ settings:
     # release; bump CURRENT_PROJECT_VERSION for every upload of the same version.
     MARKETING_VERSION: "1.0.0"
     CURRENT_PROJECT_VERSION: "1"
-# DEVELOPMENT_TEAM comes from Signing.xcconfig (gitignored, per-machine) so Xcode
-# never prompts "Signing requires a development team" and the value can't be lost
-# to `xcodegen generate` or `git checkout`. Copy Signing.xcconfig.template to
-# Signing.xcconfig and set your Team ID. Missing file = empty team (CI builds
-# with a stub identity).
-configFiles:
-  Debug: Signing.xcconfig
-  Release: Signing.xcconfig
+    # DEVELOPMENT_TEAM is intentionally not set. CODE_SIGN_STYLE = Automatic
+    # resolves the one team on the account; Xcode stores the pick in the
+    # (gitignored) generated project.
 packages:
   UIWorkouts:
     # Pinned to a released tag for store builds. During UIWorkouts co-development
