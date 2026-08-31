@@ -16,7 +16,7 @@ final class RoundTimerEngineTests: XCTestCase {
 
     /// 2 rounds, 10 s work, 5 s rest (the model minimums, so nothing floors).
     private func makeEngine(_ activity: RoundsActivity = RoundsActivity(
-        mode: .free, freeRounds: 2, freeRoundSeconds: 10, freeRestSeconds: 5
+        rounds: 2, configuredRoundSeconds: 10, configuredRestSeconds: 5
     )) -> (RoundTimerEngine, CueSpy, () -> Void, (TimeInterval) -> Void) {
         var clock = Date(timeIntervalSince1970: 1_000)
         let spy = CueSpy()
@@ -56,7 +56,7 @@ final class RoundTimerEngineTests: XCTestCase {
 
     func testTenSecondWarningFires() {
         let (engine, spy, advance, tick) = makeEngine(
-            RoundsActivity(mode: .free, freeRounds: 1, freeRoundSeconds: 15, freeRestSeconds: 5))
+            RoundsActivity(rounds: 1, configuredRoundSeconds: 15, configuredRestSeconds: 5))
         engine.start()
         tick(5); advance()                       // elapsed 5 → 10 s left
         XCTAssertEqual(spy.log, ["begin", "start", "warn"])
@@ -64,7 +64,7 @@ final class RoundTimerEngineTests: XCTestCase {
 
     func testPauseFreezesTheClockAndResumeContinues() {
         let (engine, _, advance, tick) = makeEngine(
-            RoundsActivity(mode: .free, freeRounds: 5, freeRoundSeconds: 10, freeRestSeconds: 5))
+            RoundsActivity(rounds: 5, configuredRoundSeconds: 10, configuredRestSeconds: 5))
         engine.start()
         tick(3); advance()
         XCTAssertEqual(engine.remaining, 7)
@@ -82,7 +82,7 @@ final class RoundTimerEngineTests: XCTestCase {
 
     func testStopFinishesWithoutAFinalBellAndIsIdempotent() {
         let (engine, spy, _, _) = makeEngine(
-            RoundsActivity(mode: .free, freeRounds: 5, freeRoundSeconds: 10, freeRestSeconds: 5))
+            RoundsActivity(rounds: 5, configuredRoundSeconds: 10, configuredRestSeconds: 5))
         engine.start()
         engine.stop()
         engine.stop()
@@ -93,7 +93,7 @@ final class RoundTimerEngineTests: XCTestCase {
 
     func testFractionProgressesAcrossThePhase() {
         let (engine, _, advance, tick) = makeEngine(
-            RoundsActivity(mode: .free, freeRounds: 3, freeRoundSeconds: 10, freeRestSeconds: 5))
+            RoundsActivity(rounds: 3, configuredRoundSeconds: 10, configuredRestSeconds: 5))
         engine.start()
         XCTAssertEqual(engine.fraction, 0, accuracy: 0.001)
         tick(5); advance()

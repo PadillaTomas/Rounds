@@ -31,10 +31,13 @@ extension CuePlaying {
 ///
 /// The audio session is activated **once** for the whole workout and released
 /// once at the end (with `.notifyOthersOnDeactivation`, so any lowered music
-/// jumps straight back up). Every session call is on a background queue —
-/// `setActive` on the main thread stalls the UI — and Core Haptics is told
-/// `playsHapticsOnly` so it never touches the audio session itself.
-final class CuePlayer: CuePlaying {
+/// jumps straight back up) — but never while the closing bell is still ringing:
+/// ``sessionDidEnd()`` waits for it to finish first, holding this object alive
+/// past the timer screen's dismissal if the fighter taps Done mid-bell. Every
+/// session call is on a background queue — `setActive` on the main thread stalls
+/// the UI — and Core Haptics is told `playsHapticsOnly` so it never touches the
+/// audio session itself.
+final class CuePlayer: NSObject, CuePlaying, AVAudioPlayerDelegate {
     /// When `true`, other apps' audio (music, podcasts) is lowered for the
     /// duration of the workout so the cues sit on top. When `false`, cues just
     /// mix in at full volume.
@@ -42,14 +45,26 @@ final class CuePlayer: CuePlaying {
 
     private let audioQueue = DispatchQueue(label: "com.padillatomas.rounds.audio-session")
 
+    /// Set when the workout ended while the closing bell was still playing —
+    /// the audio-session teardown is then deferred to `audioPlayerDidFinishPlaying`.
+    private var endAfterBell = false
+    /// A static hold so a bell that outlives the timer screen (Done tapped
+    /// mid-ring) still plays to the end before the session is released.
+    private static var ringingOut: CuePlayer?
+
     init(dimsOtherAudio: Bool = true) {
         self.dimsOtherAudio = dimsOtherAudio
+        super.init()
     }
 
     /// Every bell — round start, round end, end of fight — is the same recorded
     /// double bell-hit. Synth fallback only if the bundled file is missing.
-    private lazy var bell = BundledSound.player("final-bell", ext: "mp3", volume: 0.85)
-        ?? ToneSynth.bell(strikes: 3, gap: 0.01, decay: 1, volume: 1)
+    private lazy var bell: AVAudioPlayer? = {
+        let player = BundledSound.player("final-bell", ext: "mp3", volume: 0.85)
+            ?? ToneSynth.bell(strikes: 3, gap: 0.01, decay: 1, volume: 1)
+        player?.delegate = self
+        return player
+    }()
     private lazy var warnClap = ToneSynth.clap(volume: 1)
 
     private func play(_ player: AVAudioPlayer?) {
@@ -63,7 +78,7 @@ final class CuePlayer: CuePlaying {
     func roundStarted()     { play(bell); Haptics.buzz(0.45) }
     func roundEnded()       { play(bell); Haptics.buzz(0.55) }
     func tenSecondWarning() { play(warnClap); Haptics.tap(times: 3) }
-    func sessionFinished()  { play(bell); Haptics.buzz(0.4, times: 3) }
+    func sessionFinished()  { play(bell); Haptics.buzz(0.6, times: 4) }
 
     func sessionDidBegin() {
         let dims = dimsOtherAudio
@@ -81,11 +96,32 @@ final class CuePlayer: CuePlaying {
     }
 
     func sessionDidEnd() {
+        // Never cut a ringing bell — most importantly the end-of-fight one.
+        // Wait for it, keeping this object (and its player) alive even if the
+        // timer screen that owns us is dismissed first.
+        if bell?.isPlaying == true {
+            endAfterBell = true
+            CuePlayer.ringingOut = self
+            return
+        }
+        teardown()
+    }
+
+    private func teardown() {
         Haptics.stop()
         audioQueue.async {
             try? AVAudioSession.sharedInstance()
                 .setActive(false, options: .notifyOthersOnDeactivation)
         }
+        CuePlayer.ringingOut = nil
+    }
+
+    // MARK: AVAudioPlayerDelegate
+
+    func audioPlayerDidFinishPlaying(_ player: AVAudioPlayer, successfully flag: Bool) {
+        guard endAfterBell else { return }
+        endAfterBell = false
+        teardown()
     }
 }
 

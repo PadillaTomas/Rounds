@@ -5,8 +5,7 @@ import UIWorkouts
 struct SettingsView: View {
     @AppStorage("rounds.theme") private var theme: WKThemeMode = .system
     @AppStorage("rounds.dimOtherAudio") private var dimOtherAudio = true
-    @AppStorage(FreeWorkoutStore.saveKey) private var saveFreeWorkout = true
-    @Environment(\.dismiss) private var dismiss
+    @AppStorage(FreeWorkoutStore.saveKey) private var saveWorkout = true
 
     var body: some View {
         NavigationStack {
@@ -18,17 +17,17 @@ struct SettingsView: View {
                     }
 
                     VStack(alignment: .leading, spacing: WKSpace.md) {
-                        WKSectionHeader(Copy.Settings.freeWorkout)
-                        WKToggleRow(Copy.Settings.saveFreeWorkout, isOn: $saveFreeWorkout)
+                        WKSectionHeader(Copy.Settings.workout)
+                        WKToggleRow(Copy.Settings.saveWorkout, isOn: $saveWorkout)
                             .background(WKColor.surface)
                             .clipShape(RoundedRectangle(cornerRadius: WKRadius.card, style: .continuous))
-                        Text(Copy.Settings.saveFreeWorkoutCaption)
+                        Text(Copy.Settings.saveWorkoutCaption)
                             .wkFont(.caption)
                             .foregroundStyle(WKColor.textTertiary)
                             .fixedSize(horizontal: false, vertical: true)
                     }
-                    .onChange(of: saveFreeWorkout) { _, _ in
-                        // Switched off → forget the current Free setup now.
+                    .onChange(of: saveWorkout) { _, _ in
+                        // Switched off → forget the current setup now.
                         FreeWorkoutStore.resetIfNotSaving()
                     }
 
@@ -48,12 +47,6 @@ struct SettingsView: View {
             .background(WKColor.bg)
             .navigationTitle(Copy.Settings.title)
             .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .topBarTrailing) {
-                    Button(Copy.Settings.done) { dismiss() }
-                        .tint(WKColor.accent)
-                }
-            }
         }
     }
 }

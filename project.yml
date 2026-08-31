@@ -7,13 +7,21 @@ options:
 settings:
   base:
     SWIFT_VERSION: "5.9"
-    DEVELOPMENT_TEAM: ""
     CODE_SIGN_STYLE: Automatic
+# DEVELOPMENT_TEAM comes from Signing.xcconfig (gitignored, per-machine) so Xcode
+# never prompts "Signing requires a development team" and the value can't be lost
+# to `xcodegen generate` or `git checkout`. Copy Signing.xcconfig.template to
+# Signing.xcconfig and set your Team ID. Missing file = empty team (CI builds
+# with a stub identity).
+configFiles:
+  Debug: Signing.xcconfig
+  Release: Signing.xcconfig
 packages:
   UIWorkouts:
-    # Local path during co-development — a UIWorkouts edit is live in the next
-    # Rounds build, no tag needed. Flip to a version tag at an app release.
-    path: ../UI-Workouts
+    # Pinned to a released tag for store builds. During UIWorkouts co-development
+    # swap this back to `path: ../UI-Workouts` so edits are live without a tag.
+    url: https://github.com/PadillaTomas/UI-Workouts.git
+    from: "0.5.0"
 targets:
   Rounds:
     type: application

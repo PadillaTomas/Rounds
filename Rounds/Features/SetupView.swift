@@ -1,113 +1,143 @@
 import SwiftUI
 import UIWorkouts
 
-/// The one setup screen: pick Full Card or Free. Free reveals wheel pickers for
-/// round count, round length and rest length. Last-used values persist.
+/// The one setup screen — deliberately a single non-scrolling height: a title
+/// row with a presets menu, one card (rounds stepper + round/rest wheels), and
+/// the Start button pinned to the bottom. Last-used values persist.
 struct SetupView: View {
-    @AppStorage("rounds.mode") private var mode: RoundsMode = .fullCard
-    /// `0` == infinite.
+    /// `0` == Non-Stop.
     @AppStorage(FreeWorkoutStore.roundsKey) private var freeRounds = FreeWorkoutStore.defaultRounds
     @AppStorage(FreeWorkoutStore.roundSecondsKey) private var freeRoundSeconds = FreeWorkoutStore.defaultRoundSeconds
     @AppStorage(FreeWorkoutStore.restSecondsKey) private var freeRestSeconds = FreeWorkoutStore.defaultRestSeconds
     @AppStorage("rounds.dimOtherAudio") private var dimOtherAudio = true
 
     @State private var running: RoundsActivity?
-    @State private var showSettings = false
+    @State private var showPresets = false
+    /// The round count to restore when Non-Stop is switched back off.
+    @State private var lastFiniteRounds = FreeWorkoutStore.defaultRounds
 
     var body: some View {
-        NavigationStack {
-            ScrollView {
-                VStack(alignment: .leading, spacing: WKSpace.xl) {
-                    WKScreenHeader(
-                        eyebrow: Copy.Setup.eyebrow,
-                        title: Copy.Setup.title,
-                        body: Copy.Setup.body
-                    )
-
-                    VStack(spacing: WKSpace.md) {
-                        ForEach(RoundsMode.allCases) { option in
-                            WKChoiceCard(title: option.title,
-                                         body: option.detail,
-                                         isSelected: mode == option) { mode = option }
-                        }
-                    }
-
-                    if mode == .free {
-                        VStack(spacing: WKSpace.md) {
-                            roundsCard
-                            durationCard(Copy.Setup.roundLength, total: $freeRoundSeconds)
-                            durationCard(Copy.Setup.restLength, total: $freeRestSeconds)
-                        }
-                    }
-                }
-                .padding(WKSpace.lg)
-            }
-            .background(WKColor.bg)
-            .toolbar {
-                ToolbarItem(placement: .topBarTrailing) {
-                    Button { showSettings = true } label: {
-                        Image(systemName: "gearshape")
-                    }
-                    .tint(WKColor.textSecondary)
-                    .accessibilityLabel(Copy.A11y.settings)
-                }
-            }
-            .safeAreaInset(edge: .bottom) {
-                WKFooterActions {
-                    WKButton(Copy.Setup.start, style: .primary, size: .large) {
-                        running = RoundsActivity(mode: mode,
-                                                 freeRounds: freeRounds,
-                                                 freeRoundSeconds: freeRoundSeconds,
-                                                 freeRestSeconds: freeRestSeconds)
-                    }
-                }
+        VStack(spacing: WKSpace.xl) {
+            header
+            workoutCard
+            Spacer(minLength: 0)
+            WKButton(Copy.Setup.start, style: .primary, size: .regular) {
+                running = RoundsActivity(rounds: freeRounds,
+                                         configuredRoundSeconds: freeRoundSeconds,
+                                         configuredRestSeconds: freeRestSeconds)
             }
         }
+        .padding(WKSpace.lg)
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .background(WKColor.bg)
         .fullScreenCover(item: $running) { activity in
             RoundTimerView(activity: activity, dimOtherAudio: dimOtherAudio)
         }
-        .sheet(isPresented: $showSettings) {
-            SettingsView()
+    }
+
+    // MARK: - Header
+
+    private var header: some View {
+        VStack(alignment: .leading, spacing: WKSpace.xs) {
+            WKLabelMono(Copy.Setup.eyebrow)
+            Text(Copy.Setup.title)
+                .wkFont(.titleM)
+                .foregroundStyle(WKColor.textPrimary)
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+    }
+
+    private var presetsButton: some View {
+        Button { showPresets = true } label: {
+            Label(Copy.Presets.heading, systemImage: "square.stack.3d.up")
+                .wkFont(.callout)
+                .foregroundStyle(WKColor.accent)
+        }
+        .frame(maxWidth: .infinity, alignment: .center)
+        .sheet(isPresented: $showPresets) {
+            PresetsSheet { preset in
+                withAnimation(.snappy) {
+                    freeRounds = preset.rounds
+                    freeRoundSeconds = preset.roundSeconds
+                    freeRestSeconds = preset.restSeconds
+                }
+                showPresets = false
+            }
         }
     }
 
-    // MARK: - Cards
+    // MARK: - Card
 
-    /// A single wheel — "Infinite" first, then 1…99.
-    private var roundsCard: some View {
+    /// Rounds, round length and rest length — one card, three stacked sections.
+    private var workoutCard: some View {
         WKCard {
-            VStack(alignment: .leading, spacing: WKSpace.xs) {
+            VStack(alignment: .leading, spacing: WKSpace.lg) {
+                roundsSection
+                Divider().overlay(WKColor.border)
+                durationSection(Copy.Setup.roundLength, total: $freeRoundSeconds)
+                Divider().overlay(WKColor.border)
+                durationSection(Copy.Setup.restLength, total: $freeRestSeconds)
+                Divider().overlay(WKColor.border)
+                presetsButton
+            }
+        }
+    }
+
+    private var isNonStop: Bool { freeRounds <= 0 }
+
+    private var roundsSection: some View {
+        VStack(spacing: WKSpace.lg) {
+            HStack {
                 Text(Copy.Setup.rounds)
                     .wkFont(.body)
                     .foregroundStyle(WKColor.textPrimary)
-                Picker(Copy.Setup.rounds, selection: $freeRounds) {
-                    Text(Copy.Setup.infinite).tag(0)
-                    ForEach(1...99, id: \.self) { Text("\($0)").tag($0) }
-                }
-                .pickerStyle(.wheel)
-                .frame(height: 110)
-                .clipped()
+                Spacer(minLength: WKSpace.md)
+                WKStepper(
+                    value: Binding(get: { isNonStop ? lastFiniteRounds : freeRounds },
+                                   set: { freeRounds = $0 }),
+                    in: 1...99
+                )
+                .disabled(isNonStop)
+                .opacity(isNonStop ? 0.4 : 1)
+                .accessibilityLabel(Copy.Setup.rounds)
             }
+
+            Button {
+                withAnimation(.snappy) {
+                    freeRounds = isNonStop ? max(1, lastFiniteRounds) : 0
+                }
+            } label: {
+                Text(Copy.Setup.infinite)
+                    .wkFont(.body)
+                    .foregroundStyle(isNonStop ? WKColor.accent : WKColor.textSecondary)
+                    .frame(maxWidth: .infinity)
+            }
+            .buttonStyle(.plain)
+            .accessibilityAddTraits(isNonStop ? [.isSelected] : [])
+        }
+        .onChange(of: freeRounds) { _, new in
+            if new > 0 { lastFiniteRounds = new }
+        }
+        .onAppear {
+            if freeRounds > 0 { lastFiniteRounds = freeRounds }
         }
     }
 
     /// Minutes and seconds as two independent wheels.
-    private func durationCard(_ title: String, total: Binding<Int>) -> some View {
-        WKCard {
-            VStack(alignment: .leading, spacing: WKSpace.xs) {
-                Text(title)
-                    .wkFont(.body)
-                    .foregroundStyle(WKColor.textPrimary)
-                HStack(spacing: 0) {
-                    wheel(Copy.Setup.unitMinutes, selection: minutesBinding(total), values: Array(0...10))
-                    unit(Copy.Setup.unitMinutes)
-                    wheel(Copy.Setup.unitSeconds, selection: secondsBinding(total), values: Array(0...59)) {
-                        String(format: "%02d", $0)
-                    }
-                    unit(Copy.Setup.unitSeconds)
+    private func durationSection(_ title: String, total: Binding<Int>) -> some View {
+        VStack(alignment: .leading, spacing: WKSpace.xs) {
+            Text(title)
+                .wkFont(.body)
+                .foregroundStyle(WKColor.textPrimary)
+            HStack(spacing: 0) {
+                wheel(Copy.Setup.unitMinutes, selection: minutesBinding(total), values: Array(0...10))
+                unit(Copy.Setup.unitMinutes)
+                wheel(Copy.Setup.unitSeconds, selection: secondsBinding(total), values: Array(0...59)) {
+                    String(format: "%02d", $0)
                 }
-                .frame(height: 110)
+                unit(Copy.Setup.unitSeconds)
             }
+            .frame(height: 96)
         }
     }
 
@@ -140,6 +170,46 @@ struct SetupView: View {
     private func secondsBinding(_ total: Binding<Int>) -> Binding<Int> {
         Binding(get: { total.wrappedValue % 60 },
                 set: { total.wrappedValue = (total.wrappedValue / 60) * 60 + $0 })
+    }
+}
+
+/// The "Default workouts" sheet — a short list of ready-made setups, each with a
+/// line of context. Picking one loads it into the wheels and closes.
+struct PresetsSheet: View {
+    let onSelect: (WorkoutPreset) -> Void
+
+    var body: some View {
+        NavigationStack {
+            ScrollView {
+                VStack(spacing: WKSpace.md) {
+                    ForEach(WorkoutPreset.all) { preset in
+                        Button { onSelect(preset) } label: {
+                            WKCard {
+                                VStack(alignment: .leading, spacing: WKSpace.xs) {
+                                    Text(preset.title)
+                                        .wkFont(.headline)
+                                        .foregroundStyle(WKColor.textPrimary)
+                                    Text(preset.summary)
+                                        .wkFont(.callout)
+                                        .foregroundStyle(WKColor.textSecondary)
+                                    Text(preset.detail)
+                                        .wkFont(.caption)
+                                        .foregroundStyle(WKColor.textTertiary)
+                                        .fixedSize(horizontal: false, vertical: true)
+                                }
+                            }
+                        }
+                        .buttonStyle(.plain)
+                    }
+                }
+                .padding(WKSpace.lg)
+            }
+            .background(WKColor.bg)
+            .navigationTitle(Copy.Presets.heading)
+            .navigationBarTitleDisplayMode(.inline)
+        }
+        .presentationDetents([.medium, .large])
+        .presentationDragIndicator(.visible)
     }
 }
 
