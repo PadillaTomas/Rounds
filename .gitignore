@@ -11,11 +11,16 @@ DerivedData/
 *.dSYM.zip
 *.dSYM
 
-# XcodeGen-generated project (regenerate with `xcodegen generate` from project.yml)
+# XcodeGen output — the project is generated, not committed.
+# Run `xcodegen generate` after cloning or changing project.yml.
+# Only the SPM dependency pin is kept under version control.
 Generated-Info.plist
-
-# Per-machine code-signing team (copy from Signing.xcconfig.template)
-Signing.xcconfig
+/Rounds.xcodeproj/*
+!/Rounds.xcodeproj/project.xcworkspace
+/Rounds.xcodeproj/project.xcworkspace/*
+!/Rounds.xcodeproj/project.xcworkspace/xcshareddata
+/Rounds.xcodeproj/project.xcworkspace/xcshareddata/*
+!/Rounds.xcodeproj/project.xcworkspace/xcshareddata/swiftpm
 
 # Swift Package Manager
 .build/
