@@ -74,9 +74,11 @@ struct SetupView: View {
             VStack(alignment: .leading, spacing: WKSpace.lg) {
                 roundsSection
                 Divider().overlay(WKColor.border)
-                durationSection(Copy.Setup.roundLength, total: $freeRoundSeconds)
+                durationSection(Copy.Setup.roundLength, total: $freeRoundSeconds,
+                                min: RoundsActivity.minRoundSeconds)
                 Divider().overlay(WKColor.border)
-                durationSection(Copy.Setup.restLength, total: $freeRestSeconds)
+                durationSection(Copy.Setup.restLength, total: $freeRestSeconds,
+                                min: RoundsActivity.minRestSeconds)
                 Divider().overlay(WKColor.border)
                 presetsButton
             }
@@ -123,16 +125,21 @@ struct SetupView: View {
         }
     }
 
-    /// Minutes and seconds as two independent wheels.
-    private func durationSection(_ title: String, total: Binding<Int>) -> some View {
-        VStack(alignment: .leading, spacing: WKSpace.xs) {
+    /// Minutes and seconds as two independent wheels. Below one minute the
+    /// seconds wheel starts at `minTotal` — the picker never offers a value the
+    /// timer would silently floor.
+    private func durationSection(_ title: String, total: Binding<Int>, min minTotal: Int) -> some View {
+        let firstSecond = total.wrappedValue < 60 ? minTotal : 0
+        return VStack(alignment: .leading, spacing: WKSpace.xs) {
             Text(title)
                 .wkFont(.body)
                 .foregroundStyle(WKColor.textPrimary)
             HStack(spacing: 0) {
-                wheel(Copy.Setup.unitMinutes, selection: minutesBinding(total), values: Array(0...10))
+                wheel(Copy.Setup.unitMinutes, selection: minutesBinding(total, min: minTotal),
+                      values: Array(0...10))
                 unit(Copy.Setup.unitMinutes)
-                wheel(Copy.Setup.unitSeconds, selection: secondsBinding(total), values: Array(0...59)) {
+                wheel(Copy.Setup.unitSeconds, selection: secondsBinding(total, min: minTotal),
+                      values: Array(firstSecond...59)) {
                     String(format: "%02d", $0)
                 }
                 unit(Copy.Setup.unitSeconds)
@@ -162,14 +169,14 @@ struct SetupView: View {
 
     // MARK: - Bindings
 
-    private func minutesBinding(_ total: Binding<Int>) -> Binding<Int> {
+    private func minutesBinding(_ total: Binding<Int>, min minTotal: Int) -> Binding<Int> {
         Binding(get: { total.wrappedValue / 60 },
-                set: { total.wrappedValue = $0 * 60 + total.wrappedValue % 60 })
+                set: { total.wrappedValue = max(minTotal, $0 * 60 + total.wrappedValue % 60) })
     }
 
-    private func secondsBinding(_ total: Binding<Int>) -> Binding<Int> {
+    private func secondsBinding(_ total: Binding<Int>, min minTotal: Int) -> Binding<Int> {
         Binding(get: { total.wrappedValue % 60 },
-                set: { total.wrappedValue = (total.wrappedValue / 60) * 60 + $0 })
+                set: { total.wrappedValue = max(minTotal, (total.wrappedValue / 60) * 60 + $0) })
     }
 }
 
