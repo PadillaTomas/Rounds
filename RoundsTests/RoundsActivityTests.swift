@@ -27,11 +27,11 @@ final class RoundsActivityTests: XCTestCase {
         XCTAssertNil(free.totalRounds)
     }
 
-    func testDegenerateFreeDurationsAreFloored() {
+    func testDegenerateDurationsAreFlooredToTheMinimums() {
         let free = RoundsActivity(rounds: 3,
-                                  configuredRoundSeconds: 0, configuredRestSeconds: 0)
-        XCTAssertEqual(free.roundSeconds, 10)
-        XCTAssertEqual(free.restSeconds, 5)
+                                  configuredRoundSeconds: 3, configuredRestSeconds: 1)
+        XCTAssertEqual(free.roundSeconds, RoundsActivity.minRoundSeconds)
+        XCTAssertEqual(free.restSeconds, RoundsActivity.minRestSeconds)
     }
 
     func testActivePresetMatchingIsExact() {

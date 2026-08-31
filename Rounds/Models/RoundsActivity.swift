@@ -11,12 +11,18 @@ struct RoundsActivity: Identifiable {
     var configuredRoundSeconds: Int
     var configuredRestSeconds: Int
 
+    /// Shortest sensible work / rest period. The setup wheels don't offer less;
+    /// the floors below are a safety net for any other path (presets, restored
+    /// defaults, a bad persisted value).
+    static let minRoundSeconds = 10
+    static let minRestSeconds = 5
+
     static let `default` = RoundsActivity(
         rounds: 12, configuredRoundSeconds: 180, configuredRestSeconds: 60
     )
 
-    var roundSeconds: Int { max(10, configuredRoundSeconds) }
-    var restSeconds: Int { max(5, configuredRestSeconds) }
+    var roundSeconds: Int { max(Self.minRoundSeconds, configuredRoundSeconds) }
+    var restSeconds: Int { max(Self.minRestSeconds, configuredRestSeconds) }
 
     /// Total rounds, or `nil` for an unbounded workout.
     var totalRounds: Int? { rounds <= 0 ? nil : rounds }

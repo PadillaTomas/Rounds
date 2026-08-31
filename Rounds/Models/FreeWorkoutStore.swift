@@ -32,4 +32,15 @@ enum FreeWorkoutStore {
         defaults.set(defaultRoundSeconds, forKey: roundSecondsKey)
         defaults.set(defaultRestSeconds, forKey: restSecondsKey)
     }
+
+    /// Raise a stored duration that predates the current minimums (e.g. a value
+    /// saved by an early build whose wheels allowed sub-minimum picks).
+    static func clampToMinimums(_ defaults: UserDefaults = .standard) {
+        if let r = defaults.object(forKey: roundSecondsKey) as? Int, r < RoundsActivity.minRoundSeconds {
+            defaults.set(RoundsActivity.minRoundSeconds, forKey: roundSecondsKey)
+        }
+        if let r = defaults.object(forKey: restSecondsKey) as? Int, r < RoundsActivity.minRestSeconds {
+            defaults.set(RoundsActivity.minRestSeconds, forKey: restSecondsKey)
+        }
+    }
 }
