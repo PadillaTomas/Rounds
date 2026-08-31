@@ -32,36 +32,38 @@ struct RoundTimerView: View {
                 .animation(reduceMotion ? nil : .easeInOut(duration: 0.5), value: engine.phase)
                 .animation(reduceMotion ? nil : .easeInOut(duration: 0.5), value: engine.runState)
 
-            VStack(spacing: WKSpace.xxl) {
-                WKLabelMono(headline)
+            VStack(spacing: 0) {
+                Spacer(minLength: 0)
 
-                ZStack {
-                    WKProgressRing(
-                        fraction: engine.fraction,
-                        tint: engine.runState == .paused ? phaseColor.opacity(0.5) : phaseColor,
-                        track: engine.phase.wkPhase.softColor,
-                        lineWidth: 10
-                    )
-                    VStack(spacing: WKSpace.sm) {
-                        Text(isFinished ? Copy.Timer.done : engine.phase.label)
-                            .wkFont(.labelMono)
-                            .foregroundStyle(engine.phase.wkPhase.onSoftColor)
-                        WKTimeText(seconds: engine.remaining, size: .display)
-                            .foregroundStyle(WKColor.textPrimary)
-                            .lineLimit(1)
-                            .minimumScaleFactor(0.5)
+                VStack(spacing: WKSpace.xxl) {
+                    WKLabelMono(headline)
+
+                    ZStack {
+                        WKProgressRing(
+                            fraction: engine.fraction,
+                            tint: engine.runState == .paused ? phaseColor.opacity(0.5) : phaseColor,
+                            track: engine.phase.wkPhase.softColor,
+                            lineWidth: 10
+                        )
+                        VStack(spacing: WKSpace.sm) {
+                            Text(isFinished ? Copy.Timer.done : engine.phase.label)
+                                .wkFont(.labelMono)
+                                .foregroundStyle(engine.phase.wkPhase.onSoftColor)
+                            WKTimeText(seconds: engine.remaining, size: .display)
+                                .foregroundStyle(WKColor.textPrimary)
+                                .lineLimit(1)
+                                .minimumScaleFactor(0.5)
+                        }
+                        .padding(WKSpace.xxl)
                     }
-                    .padding(WKSpace.xxl)
+                    .frame(maxWidth: 320)
+                    .padding(.horizontal, WKSpace.xl)
+
+                    tally
                 }
-                .frame(maxWidth: 320)
-                .padding(.horizontal, WKSpace.xl)
 
-                tally
-            }
-            .padding(WKSpace.lg)
+                Spacer(minLength: 0)
 
-            VStack {
-                Spacer()
                 controls
             }
             .padding(WKSpace.lg)

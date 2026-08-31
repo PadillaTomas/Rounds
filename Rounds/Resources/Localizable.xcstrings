@@ -1,60 +1,46 @@
 {
   "sourceLanguage" : "en",
   "strings" : {
-    "%@" : {
-
-    },
-    "a11y.settings" : {
+    "presets.fullCard.detail" : {
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Settings"
+            "value" : "A full championship fight — twelve three-minute rounds with a minute of rest between each."
           }
         }
       }
     },
-    "mode.free.detail" : {
+    "presets.fullCard.summary" : {
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Set your own rounds, round length and rest."
+            "value" : "12 rounds · 3:00 work · 1:00 rest"
           }
         }
       }
     },
-    "mode.free.title" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Free"
-          }
-        }
-      }
-    },
-    "mode.fullCard.detail" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Twelve 3-minute rounds, 1-minute rest. Fixed."
-          }
-        }
-      }
-    },
-    "mode.fullCard.title" : {
+    "presets.fullCard.title" : {
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Full Card"
+          }
+        }
+      }
+    },
+    "presets.heading" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Default workouts"
           }
         }
       }
@@ -103,46 +89,24 @@
         }
       }
     },
-    "settings.done" : {
+    "settings.saveWorkout" : {
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Done"
+            "value" : "Save your last workout"
           }
         }
       }
     },
-    "settings.freeWorkout" : {
+    "settings.saveWorkoutCaption" : {
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Free workout"
-          }
-        }
-      }
-    },
-    "settings.saveFreeWorkout" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Save last used free workout"
-          }
-        }
-      }
-    },
-    "settings.saveFreeWorkoutCaption" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "When on, your Free setup — rounds, round length and rest — is remembered for next time. When off, it always opens at 12 rounds of 3:00 with 1:00 rest."
+            "value" : "When on, your setup — rounds, round length and rest — is remembered for next time. When off, it opens at 12 rounds of 3:00 with 1:00 rest."
           }
         }
       }
@@ -154,6 +118,17 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Settings"
+          }
+        }
+      }
+    },
+    "settings.workout" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Workout"
           }
         }
       }
@@ -175,7 +150,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Rounds"
+            "value" : "Workout"
           }
         }
       }
@@ -186,7 +161,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Infinite"
+            "value" : "Non-Stop"
           }
         }
       }
@@ -264,6 +239,28 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "sec"
+          }
+        }
+      }
+    },
+    "tabs.settings" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Settings"
+          }
+        }
+      }
+    },
+    "tabs.workout" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Workout"
           }
         }
       }

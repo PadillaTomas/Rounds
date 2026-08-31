@@ -18,29 +18,32 @@ private func t(_ key: StaticString, _ fallback: String.LocalizationValue) -> Str
 
 enum Copy {
 
+    enum Tabs {
+        static var workout: String { t("tabs.workout", "Workout") }
+        static var settings: String { t("tabs.settings", "Settings") }
+    }
+
     enum Setup {
-        static var eyebrow: String { t("setup.eyebrow", "Rounds") }
+        static var eyebrow: String { t("setup.eyebrow", "Workout") }
         static var title: String { t("setup.title", "Set up your rounds") }
-        static var body: String {
-            t("setup.body", "A boxing-style interval timer — bell every round, a clap ten seconds before the bell.")
-        }
         static var start: String { t("setup.start", "Start") }
         static var rounds: String { t("setup.rounds", "Rounds") }
-        static var infinite: String { t("setup.infinite", "Infinite") }
+        static var infinite: String { t("setup.infinite", "Non-Stop") }
         static var roundLength: String { t("setup.roundLength", "Round length") }
         static var restLength: String { t("setup.restLength", "Rest length") }
         static var unitMinutes: String { t("setup.unit.minutes", "min") }
         static var unitSeconds: String { t("setup.unit.seconds", "sec") }
     }
 
-    enum Mode {
-        static var fullCardTitle: String { t("mode.fullCard.title", "Full Card") }
-        static var fullCardDetail: String {
-            t("mode.fullCard.detail", "Twelve 3-minute rounds, 1-minute rest. Fixed.")
+    enum Presets {
+        static var heading: String { t("presets.heading", "Default workouts") }
+        static var fullCardTitle: String { t("presets.fullCard.title", "Full Card") }
+        static var fullCardSummary: String {
+            t("presets.fullCard.summary", "12 rounds · 3:00 work · 1:00 rest")
         }
-        static var freeTitle: String { t("mode.free.title", "Free") }
-        static var freeDetail: String {
-            t("mode.free.detail", "Set your own rounds, round length and rest.")
+        static var fullCardDetail: String {
+            t("presets.fullCard.detail",
+              "A full championship fight — twelve three-minute rounds with a minute of rest between each.")
         }
     }
 
@@ -63,14 +66,13 @@ enum Copy {
 
     enum Settings {
         static var title: String { t("settings.title", "Settings") }
-        static var done: String { t("settings.done", "Done") }
         static var appearance: String { t("settings.appearance", "Appearance") }
-        static var freeWorkout: String { t("settings.freeWorkout", "Free workout") }
-        static var saveFreeWorkout: String {
-            t("settings.saveFreeWorkout", "Save last used free workout")
+        static var workout: String { t("settings.workout", "Workout") }
+        static var saveWorkout: String {
+            t("settings.saveWorkout", "Save your last workout")
         }
-        static var saveFreeWorkoutCaption: String {
-            t("settings.saveFreeWorkoutCaption", "When on, your Free setup — rounds, round length and rest — is remembered for next time. When off, it always opens at 12 rounds of 3:00 with 1:00 rest.")
+        static var saveWorkoutCaption: String {
+            t("settings.saveWorkoutCaption", "When on, your setup — rounds, round length and rest — is remembered for next time. When off, it opens at 12 rounds of 3:00 with 1:00 rest.")
         }
         static var audio: String { t("settings.audio", "Audio") }
         static var dimOtherAudio: String {
@@ -79,9 +81,5 @@ enum Copy {
         static var dimOtherAudioCaption: String {
             t("settings.dimOtherAudioCaption", "Cues always play alongside your music, even on silent. When on, your music is lowered for the whole workout so every bell and clap stands out.")
         }
-    }
-
-    enum A11y {
-        static var settings: String { t("a11y.settings", "Settings") }
     }
 }
