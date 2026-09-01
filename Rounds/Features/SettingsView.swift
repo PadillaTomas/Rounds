@@ -3,7 +3,7 @@ import UIWorkouts
 
 /// The whole of Settings for the MVP: appearance, and whether cues dim music.
 struct SettingsView: View {
-    @AppStorage("rounds.theme") private var theme: WKThemeMode = .system
+    @AppStorage("rounds.theme") private var theme: WKAppearance = .dark
     @AppStorage("rounds.dimOtherAudio") private var dimOtherAudio = true
     @AppStorage(FreeWorkoutStore.saveKey) private var saveWorkout = true
 

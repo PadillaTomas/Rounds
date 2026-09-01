@@ -20,8 +20,9 @@ packages:
     # Pinned exactly here (not via a committed Package.resolved — xcodebuild keeps
     # rewriting that file). Bump this string to adopt a new UIWorkouts tag. During
     # UIWorkouts co-development swap to `path: ../UI-Workouts` for live edits.
-    url: https://github.com/PadillaTomas/UI-Workouts.git
-    exactVersion: "0.5.0"
+    # Local path while adopting the UIWorkouts refactor on feature/new-ui —
+    # flip back to url + exactVersion at the next UIWorkouts release tag.
+    path: ../UI-Workouts
 targets:
   Rounds:
     type: application

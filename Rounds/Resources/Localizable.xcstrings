@@ -276,6 +276,29 @@
         }
       }
     },
+    "timer.lastRound" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Last round"
+          }
+        }
+      }
+    },
+    "timer.nextUp" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Next · %1$@ %2$@"
+          }
+        }
+      },
+      "comment" : "%1$@ next phase name, %2$@ its length m:ss"
+    },
     "timer.pause" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -354,6 +377,18 @@
           }
         }
       }
+    },
+    "timer.tally" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$lld of %2$lld"
+          }
+        }
+      },
+      "comment" : "%1$lld current round, %2$lld total. Timer pill."
     }
   },
   "version" : "1.0"

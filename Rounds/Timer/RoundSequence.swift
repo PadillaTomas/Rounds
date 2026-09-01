@@ -20,6 +20,18 @@ struct RoundSequence {
         totalRounds.map { ($0 - 1) * cycle + roundSeconds }
     }
 
+    /// One entry per phase the workout runs through, in order — `nil` for
+    /// Non-Stop. Every round is work then rest, except a finite workout's last
+    /// (work only). Feeds the on-screen progress track.
+    var phases: [(round: Int, phase: RoundPhase, seconds: Int)]? {
+        guard let totalRounds else { return nil }
+        return (1...totalRounds).flatMap { round -> [(Int, RoundPhase, Int)] in
+            round < totalRounds
+                ? [(round, .work, roundSeconds), (round, .rest, restSeconds)]
+                : [(round, .work, roundSeconds)]
+        }
+    }
+
     struct Tick: Equatable {
         var round: Int          // 1-based
         var phase: RoundPhase

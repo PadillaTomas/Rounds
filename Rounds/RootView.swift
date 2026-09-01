@@ -4,12 +4,12 @@ import UIWorkouts
 /// The app root. Persisted appearance is applied exactly once, here. Two tabs:
 /// set up / run the workout, and settings.
 struct RootView: View {
-    @AppStorage("rounds.theme") private var theme: WKThemeMode = .system
+    @AppStorage("rounds.theme") private var theme: WKAppearance = .dark
 
     var body: some View {
         MainTabView()
             .tint(WKColor.accent)
-            .wkThemeMode(theme)
+            .preferredColorScheme(theme.colorScheme)
     }
 }
 
