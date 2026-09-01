@@ -62,6 +62,13 @@ enum Copy {
         static func round(_ round: Int) -> String {
             String(localized: "timer.round", defaultValue: "Round \(round)")
         }
+        static func tally(_ round: Int, _ total: Int) -> String {
+            String(localized: "timer.tally", defaultValue: "\(round) of \(total)")
+        }
+        static func nextUp(_ phase: String, _ clock: String) -> String {
+            String(localized: "timer.nextUp", defaultValue: "Next · \(phase) \(clock)")
+        }
+        static var lastRound: String { t("timer.lastRound", "Last round") }
     }
 
     enum Settings {

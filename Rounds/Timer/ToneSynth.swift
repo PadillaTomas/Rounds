@@ -65,7 +65,8 @@ enum ToneSynth {
         let pcm = samples.map { Int16(max(-1, min(1, $0)) * 30_000) }
         guard let data = wav(pcm), let p = try? AVAudioPlayer(data: data) else { return nil }
         p.volume = volume
-        p.prepareToPlay()
+        // No `prepareToPlay()` here — it blocks on the audio server; `CuePlayer`
+        // primes the players on a background queue in `sessionDidBegin()`.
         return p
     }
 

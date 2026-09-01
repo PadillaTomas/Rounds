@@ -86,8 +86,13 @@ final class CuePlayer: NSObject, CuePlaying, AVAudioPlayerDelegate {
 
     private func play(_ player: AVAudioPlayer?) {
         guard let player else { return }
-        player.currentTime = 0
-        player.play()
+        // Off the main thread: when the audio server is stalled or absent (a
+        // wedged Simulator, a device mid-route-change) `play()` can block the
+        // caller for seconds — and cues arrive on the timer's run loop.
+        audioQueue.async {
+            player.currentTime = 0
+            player.play()
+        }
     }
 
     // MARK: CuePlaying
@@ -99,6 +104,12 @@ final class CuePlayer: NSObject, CuePlaying, AVAudioPlayerDelegate {
 
     func sessionDidBegin() {
         let dims = dimsOtherAudio
+        // Resolve the lazy players on the calling thread (so their initialisers
+        // aren't raced), but do every audio-server call on the background queue —
+        // `setActive` / `prepareToPlay` / `play` all block while the server is
+        // starting, and none of it may stall the UI.
+        let players = [bell, warnClap, keepAlive]
+        let loop = keepAlive
         audioQueue.async {
             let session = AVAudioSession.sharedInstance()
             // `.playback` ignores the mute switch; `.mixWithOthers` keeps the
@@ -107,43 +118,49 @@ final class CuePlayer: NSObject, CuePlaying, AVAudioPlayerDelegate {
             if dims { options.insert(.duckOthers) }
             try? session.setCategory(.playback, mode: .default, options: options)
             try? session.setActive(true)
+            players.forEach { $0?.prepareToPlay() }
+            loop?.play()
         }
-        [bell, warnClap].forEach { $0?.prepareToPlay() }
-        keepAlive?.prepareToPlay()
-        keepAlive?.play()
         observeInterruptions()
         Haptics.prepare()
     }
 
     func sessionDidEnd() {
-        // Never cut a ringing bell — most importantly the end-of-fight one.
-        // Wait for it, keeping this object (and its player) alive even if the
-        // timer screen that owns us is dismissed first.
-        if bell?.isPlaying == true {
-            endAfterBell = true
-            CuePlayer.ringingOut = self
-            return
+        // On the serial audio queue, so it runs *after* any queued cue playback
+        // and `isPlaying` reflects a bell that has actually started. Never cut a
+        // ringing bell — most of all the closing one: defer teardown to the
+        // delegate, holding this object alive even if the timer screen is gone.
+        audioQueue.async { [weak self] in
+            guard let self else { return }
+            if self.bell?.isPlaying == true {
+                self.endAfterBell = true
+                CuePlayer.ringingOut = self
+            } else {
+                self.teardown()
+            }
         }
-        teardown()
     }
 
+    /// Always called on `audioQueue`.
     private func teardown() {
         keepAlive?.stop()
-        stopObservingInterruptions()
-        Haptics.stop()
-        audioQueue.async {
-            try? AVAudioSession.sharedInstance()
-                .setActive(false, options: .notifyOthersOnDeactivation)
-        }
+        try? AVAudioSession.sharedInstance()
+            .setActive(false, options: .notifyOthersOnDeactivation)
         CuePlayer.ringingOut = nil
+        DispatchQueue.main.async { [weak self] in
+            self?.stopObservingInterruptions()
+            Haptics.stop()
+        }
     }
 
     // MARK: AVAudioPlayerDelegate
 
     func audioPlayerDidFinishPlaying(_ player: AVAudioPlayer, successfully flag: Bool) {
-        guard endAfterBell else { return }
-        endAfterBell = false
-        teardown()
+        audioQueue.async { [weak self] in
+            guard let self, self.endAfterBell else { return }
+            self.endAfterBell = false
+            self.teardown()
+        }
     }
 
     // MARK: Interruptions
@@ -163,9 +180,12 @@ final class CuePlayer: NSObject, CuePlaying, AVAudioPlayerDelegate {
                   let raw = note.userInfo?[AVAudioSessionInterruptionTypeKey] as? UInt,
                   AVAudioSession.InterruptionType(rawValue: raw) == .ended
             else { return }
-            self.audioQueue.async { try? AVAudioSession.sharedInstance().setActive(true) }
-            self.bell?.prepareToPlay()
-            self.keepAlive?.play()
+            let bell = self.bell, loop = self.keepAlive
+            self.audioQueue.async {
+                try? AVAudioSession.sharedInstance().setActive(true)
+                bell?.prepareToPlay()
+                loop?.play()
+            }
         }
     }
 
@@ -183,7 +203,8 @@ enum BundledSound {
         guard let url = Bundle.main.url(forResource: name, withExtension: ext),
               let player = try? AVAudioPlayer(contentsOf: url) else { return nil }
         player.volume = volume
-        player.prepareToPlay()
+        // `prepareToPlay()` touches the audio server and can block — the caller
+        // does it on a background queue in `sessionDidBegin()`.
         return player
     }
 }
