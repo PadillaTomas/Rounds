@@ -91,6 +91,52 @@ final class RoundTimerEngineTests: XCTestCase {
         XCTAssertEqual(spy.log.filter { $0 == "didEnd" }.count, 1)
     }
 
+    func testNaturalFinishReportsCompletedWithEveryRound() {
+        let (engine, _, advance, tick) = makeEngine(
+            RoundsActivity(rounds: 2, configuredRoundSeconds: 10, configuredRestSeconds: 5))
+        engine.start()
+        tick(25); advance()                      // past the final bell
+        XCTAssertEqual(engine.finishReason, .completed)
+        XCTAssertEqual(engine.completedRounds, 2)
+        XCTAssertEqual(engine.elapsed, 25)
+    }
+
+    func testStopMidRoundCountsOnlyRoundsWhoseBellRang() {
+        let (engine, _, advance, tick) = makeEngine(
+            RoundsActivity(rounds: 5, configuredRoundSeconds: 10, configuredRestSeconds: 5))
+        engine.start()
+        tick(18); advance()                      // round 2 work, 3 s in
+        XCTAssertEqual(engine.round, 2)
+        XCTAssertEqual(engine.phase, .work)
+        engine.stop()
+        XCTAssertEqual(engine.finishReason, .stoppedEarly)
+        XCTAssertEqual(engine.completedRounds, 1) // only round 1 finished
+        XCTAssertEqual(engine.elapsed, 18)
+    }
+
+    func testStopDuringRestCountsThatRound() {
+        let (engine, _, advance, tick) = makeEngine(
+            RoundsActivity(rounds: 5, configuredRoundSeconds: 10, configuredRestSeconds: 5))
+        engine.start()
+        tick(12); advance()                      // round 1 rest (10..15)
+        XCTAssertEqual(engine.phase, .rest)
+        engine.stop()
+        XCTAssertEqual(engine.completedRounds, 1)
+    }
+
+    func testElapsedExcludesPausedTime() {
+        let (engine, _, advance, tick) = makeEngine(
+            RoundsActivity(rounds: 5, configuredRoundSeconds: 10, configuredRestSeconds: 5))
+        engine.start()
+        tick(4); advance()
+        engine.togglePause()
+        tick(30); advance()
+        engine.togglePause()                     // resume
+        tick(2); advance()
+        engine.stop()
+        XCTAssertEqual(engine.elapsed, 6)
+    }
+
     func testFractionProgressesAcrossThePhase() {
         let (engine, _, advance, tick) = makeEngine(
             RoundsActivity(rounds: 3, configuredRoundSeconds: 10, configuredRestSeconds: 5))

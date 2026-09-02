@@ -20,7 +20,12 @@ enum Copy {
 
     enum Tabs {
         static var workout: String { t("tabs.workout", "Workout") }
+        static var history: String { t("tabs.history", "History") }
         static var settings: String { t("tabs.settings", "Settings") }
+    }
+
+    enum Common {
+        static var cancel: String { t("common.cancel", "Cancel") }
     }
 
     enum Setup {
@@ -69,6 +74,42 @@ enum Copy {
             String(localized: "timer.nextUp", defaultValue: "Next · \(phase) \(clock)")
         }
         static var lastRound: String { t("timer.lastRound", "Last round") }
+
+        static var saveTitle: String { t("timer.save.title", "Save this workout?") }
+        static var saveMessage: String {
+            t("timer.save.message", "Add it to your history with the rounds you finished.")
+        }
+        static var saveKeep: String { t("timer.save.keep", "Save") }
+        static var saveDiscard: String { t("timer.save.discard", "Don't save") }
+    }
+
+    enum History {
+        static var title: String { t("history.title", "History") }
+        static var recent: String { t("history.recent", "Recent") }
+        static var empty: String {
+            t("history.empty", "Your finished workouts show up here.")
+        }
+        static var thisWeek: String { t("history.thisWeek", "This week") }
+        static var totalRounds: String { t("history.totalRounds", "Total rounds") }
+        static var delete: String { t("history.delete", "Delete") }
+        static var deleteTitle: String { t("history.delete.title", "Delete this activity?") }
+        static var deleteMessage: String {
+            t("history.delete.message", "It's removed from your history for good.")
+        }
+
+        /// "1 round" / "12 rounds".
+        static func roundsCount(_ n: Int) -> String {
+            n == 1 ? t("history.rounds.one", "1 round")
+                   : String(localized: "history.rounds.many", defaultValue: "\(n) rounds")
+        }
+        /// "8 of 12 rounds" — a workout stopped before the final bell.
+        static func roundsOf(_ done: Int, _ planned: Int) -> String {
+            String(localized: "history.rounds.of", defaultValue: "\(done) of \(planned) rounds")
+        }
+        /// "12 rounds · 3:00 / 1:00".
+        static func line(_ rounds: String, _ work: String, _ rest: String) -> String {
+            String(localized: "history.line", defaultValue: "\(rounds) · \(work) / \(rest)")
+        }
     }
 
     enum Settings {

@@ -11,11 +11,17 @@ import Observation
 @Observable
 final class RoundTimerEngine {
     enum RunState { case running, paused, finished }
+    /// How a finished workout ended — drives whether it's recorded to history.
+    enum FinishReason: Equatable { case completed, stoppedEarly }
 
     private(set) var phase: RoundPhase = .work
     private(set) var round = 1
     private(set) var remaining: Int
     private(set) var runState: RunState = .running
+    private(set) var finishReason: FinishReason?
+
+    /// When the workout started (fixed at ``start()``, unaffected by pauses).
+    @ObservationIgnored private(set) var sessionStart = Date()
 
     let sequence: RoundSequence
 
@@ -53,6 +59,7 @@ final class RoundTimerEngine {
     func start() {
         guard runState != .finished else { return }
         cues.sessionDidBegin()
+        sessionStart = now()
         startDate = now()
         advance()               // fires the first bell, sets round 1 / work
         startTicker()
@@ -77,7 +84,19 @@ final class RoundTimerEngine {
     }
 
     /// Ends the workout early. Idempotent.
-    func stop() { finish() }
+    func stop() { finish(.stoppedEarly) }
+
+    /// Wall-clock seconds the workout ran, paused time excluded. Live while
+    /// running, frozen at the value reached when it finished.
+    var elapsed: Int { runState == .finished ? finalElapsed : elapsedSeconds() }
+    @ObservationIgnored private var finalElapsed = 0
+
+    /// Work periods finished. A completed workout counts every round; a workout
+    /// stopped during a round counts the ones whose bell already rang.
+    var completedRounds: Int {
+        if finishReason == .completed { return totalRounds ?? round }
+        return phase == .rest ? round : round - 1
+    }
 
     // MARK: - Ticking
 
@@ -110,7 +129,7 @@ final class RoundTimerEngine {
         round = tick.round
         phase = tick.phase
         remaining = tick.remaining
-        if tick.isFinished { finish() }
+        if tick.isFinished { finish(.completed) }
     }
 
     private func fire(_ cue: Cue?) {
@@ -123,8 +142,10 @@ final class RoundTimerEngine {
         }
     }
 
-    private func finish() {
+    private func finish(_ reason: FinishReason) {
         guard runState != .finished else { return }
+        finalElapsed = elapsedSeconds()
+        finishReason = reason
         runState = .finished
         ticker?.invalidate(); ticker = nil
         remaining = 0

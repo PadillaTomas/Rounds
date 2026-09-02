@@ -1,4 +1,5 @@
 import SwiftUI
+import SwiftData
 import UIKit
 import UIWorkouts
 
@@ -8,12 +9,20 @@ import UIWorkouts
 /// progress track below, and the controls pinned to the bottom.
 struct RoundTimerView: View {
     let activity: RoundsActivity
+    /// The preset / saved-workout name this run started from, if any.
+    let sourceName: String?
 
     @State private var engine: RoundTimerEngine
+    /// Guards the one-shot history write.
+    @State private var recorded = false
+    /// "Save this workout?" prompt after Stop.
+    @State private var askToSave = false
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.modelContext) private var modelContext
 
-    init(activity: RoundsActivity, dimOtherAudio: Bool = true) {
+    init(activity: RoundsActivity, sourceName: String? = nil, dimOtherAudio: Bool = true) {
         self.activity = activity
+        self.sourceName = sourceName
         _engine = State(wrappedValue: RoundTimerEngine(
             activity: activity,
             cues: CuePlayer(dimsOtherAudio: dimOtherAudio)
@@ -80,10 +89,47 @@ struct RoundTimerView: View {
             UIApplication.shared.isIdleTimerDisabled = true
             engine.start()
         }
+        .onChange(of: engine.runState) { _, state in
+            // The final bell: record automatically, no prompt.
+            if state == .finished, engine.finishReason == .completed { recordActivity() }
+        }
         .onDisappear {
             UIApplication.shared.isIdleTimerDisabled = false
             engine.stop()
         }
+        .alert(Copy.Timer.saveTitle, isPresented: $askToSave) {
+            Button(Copy.Timer.saveKeep) { recordActivity(); dismiss() }
+            Button(Copy.Timer.saveDiscard, role: .cancel) { dismiss() }
+        } message: {
+            Text(Copy.Timer.saveMessage)
+        }
+    }
+
+    /// Stop pressed. If a full round ran, ask whether to keep it; otherwise just
+    /// leave (nothing worth recording).
+    private func stopAndAskToSave() {
+        engine.stop()
+        if engine.completedRounds >= 1 {
+            askToSave = true
+        } else {
+            dismiss()
+        }
+    }
+
+    /// Write the finished workout to history — once.
+    private func recordActivity() {
+        guard !recorded, engine.runState == .finished else { return }
+        recorded = true
+        modelContext.insert(CompletedActivity(
+            startedAt: engine.sessionStart,
+            elapsedSeconds: engine.elapsed,
+            completedRounds: engine.completedRounds,
+            plannedRounds: activity.rounds,
+            roundSeconds: activity.roundSeconds,
+            restSeconds: activity.restSeconds,
+            sourceName: sourceName
+        ))
+        try? modelContext.save()
     }
 
     // MARK: - Header
@@ -159,8 +205,7 @@ struct RoundTimerView: View {
                     engine.togglePause()
                 }
                 WKButton(Copy.Timer.stop, style: .secondary) {
-                    engine.stop()
-                    dismiss()
+                    stopAndAskToSave()
                 }
             }
         }
@@ -169,4 +214,5 @@ struct RoundTimerView: View {
 
 #Preview {
     RoundTimerView(activity: .default)
+        .modelContainer(RoundsStore.preview)
 }
