@@ -5,6 +5,7 @@ import UIWorkouts
 struct SettingsView: View {
     @AppStorage("rounds.theme") private var theme: WKAppearance = .dark
     @AppStorage("rounds.dimOtherAudio") private var dimOtherAudio = true
+    @AppStorage("rounds.muteCues") private var muteCues = false
     @AppStorage(FreeWorkoutStore.saveKey) private var saveWorkout = true
 
     var body: some View {
@@ -21,10 +22,6 @@ struct SettingsView: View {
                         WKToggleRow(Copy.Settings.saveWorkout, isOn: $saveWorkout)
                             .background(WKColor.surface)
                             .clipShape(RoundedRectangle(cornerRadius: WKRadius.card, style: .continuous))
-                        Text(Copy.Settings.saveWorkoutCaption)
-                            .wkFont(.caption)
-                            .foregroundStyle(WKColor.textTertiary)
-                            .fixedSize(horizontal: false, vertical: true)
                     }
                     .onChange(of: saveWorkout) { _, _ in
                         // Switched off → forget the current setup now.
@@ -33,9 +30,20 @@ struct SettingsView: View {
 
                     VStack(alignment: .leading, spacing: WKSpace.md) {
                         WKSectionHeader(Copy.Settings.audio)
+
+                        WKToggleRow(Copy.Settings.muteCues, isOn: $muteCues)
+                            .background(WKColor.surface)
+                            .clipShape(RoundedRectangle(cornerRadius: WKRadius.card, style: .continuous))
+                        Text(Copy.Settings.muteCuesCaption)
+                            .wkFont(.caption)
+                            .foregroundStyle(WKColor.textTertiary)
+                            .fixedSize(horizontal: false, vertical: true)
+
                         WKToggleRow(Copy.Settings.dimOtherAudio, isOn: $dimOtherAudio)
                             .background(WKColor.surface)
                             .clipShape(RoundedRectangle(cornerRadius: WKRadius.card, style: .continuous))
+                            .disabled(muteCues)
+                            .opacity(muteCues ? 0.4 : 1)
                         Text(Copy.Settings.dimOtherAudioCaption)
                             .wkFont(.caption)
                             .foregroundStyle(WKColor.textTertiary)
