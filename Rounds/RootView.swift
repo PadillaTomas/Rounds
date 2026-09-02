@@ -19,6 +19,8 @@ struct MainTabView: View {
         TabView {
             SetupView()
                 .tabItem { Label(Copy.Tabs.workout, systemImage: "figure.boxing") }
+            HistoryView()
+                .tabItem { Label(Copy.Tabs.history, systemImage: "clock.arrow.circlepath") }
             SettingsView()
                 .tabItem { Label(Copy.Tabs.settings, systemImage: "gearshape") }
         }
@@ -27,4 +29,5 @@ struct MainTabView: View {
 
 #Preview {
     RootView()
+        .modelContainer(RoundsStore.preview)
 }

@@ -12,6 +12,8 @@ struct SetupView: View {
     @AppStorage("rounds.dimOtherAudio") private var dimOtherAudio = true
 
     @State private var running: RoundsActivity?
+    /// Name of the preset the running values came from, if they match one exactly.
+    @State private var runningSource: String?
     @State private var showPresets = false
     /// The round count to restore when Non-Stop is switched back off.
     @State private var lastFiniteRounds = FreeWorkoutStore.defaultRounds
@@ -22,6 +24,11 @@ struct SetupView: View {
             workoutCard
             Spacer(minLength: 0)
             WKButton(Copy.Setup.start, style: .primary, size: .regular) {
+                runningSource = WorkoutPreset.all.first {
+                    $0.matches(rounds: freeRounds,
+                               roundSeconds: freeRoundSeconds,
+                               restSeconds: freeRestSeconds)
+                }?.title
                 running = RoundsActivity(rounds: freeRounds,
                                          configuredRoundSeconds: freeRoundSeconds,
                                          configuredRestSeconds: freeRestSeconds)
@@ -31,7 +38,9 @@ struct SetupView: View {
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(WKColor.bg)
         .fullScreenCover(item: $running) { activity in
-            RoundTimerView(activity: activity, dimOtherAudio: dimOtherAudio)
+            RoundTimerView(activity: activity,
+                           sourceName: runningSource,
+                           dimOtherAudio: dimOtherAudio)
         }
     }
 
