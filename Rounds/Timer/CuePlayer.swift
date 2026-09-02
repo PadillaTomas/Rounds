@@ -44,12 +44,21 @@ extension CuePlaying {
 /// Audio-session interruptions (a phone call) re-activate the session and
 /// restart the loop when they end.
 final class CuePlayer: NSObject, CuePlaying, AVAudioPlayerDelegate {
-    /// When `true`, other apps' audio (music, podcasts) is lowered for the
-    /// duration of the workout so the cues sit on top. When `false`, cues just
-    /// mix in at full volume.
+    /// When `true`, other apps' audio (music, podcasts) is lowered *while a cue
+    /// is sounding* and released the moment it finishes — not for the whole
+    /// workout. When `false`, cues just mix in at full volume.
     private let dimsOtherAudio: Bool
 
+    /// When `true`, no cue sound is played at all (crowded gym, quiet room). The
+    /// vibration for every cue still fires, and the silent keep-alive loop still
+    /// runs so the timer keeps ticking in the background.
+    private let muted: Bool
+
     private let audioQueue = DispatchQueue(label: "com.padillatomas.rounds.audio-session")
+
+    /// How many cue sounds are currently holding the duck open. Only ever
+    /// touched on `audioQueue`.
+    private var duckHolds = 0
 
     /// Set when the workout ended while the closing bell was still playing —
     /// the audio-session teardown is then deferred to `audioPlayerDidFinishPlaying`.
@@ -60,8 +69,9 @@ final class CuePlayer: NSObject, CuePlaying, AVAudioPlayerDelegate {
 
     private var interruptionObserver: NSObjectProtocol?
 
-    init(dimsOtherAudio: Bool = true) {
+    init(dimsOtherAudio: Bool = true, muted: Bool = false) {
         self.dimsOtherAudio = dimsOtherAudio
+        self.muted = muted
         super.init()
     }
 
@@ -84,15 +94,38 @@ final class CuePlayer: NSObject, CuePlaying, AVAudioPlayerDelegate {
         return player
     }()
 
+    /// Play one cue sound. No-op when muted. When dimming is on, other audio is
+    /// ducked just for the length of this sound (plus a short tail) and released
+    /// once every overlapping cue has finished.
     private func play(_ player: AVAudioPlayer?) {
-        guard let player else { return }
+        guard !muted, let player else { return }
         // Off the main thread: when the audio server is stalled or absent (a
         // wedged Simulator, a device mid-route-change) `play()` can block the
         // caller for seconds — and cues arrive on the timer's run loop.
-        audioQueue.async {
+        audioQueue.async { [weak self] in
+            guard let self else { return }
+            if self.dimsOtherAudio {
+                self.duckHolds += 1
+                self.setDuck(true)
+                let hold = max(0.4, player.duration) + 0.3
+                self.audioQueue.asyncAfter(deadline: .now() + hold) { [weak self] in
+                    guard let self else { return }
+                    self.duckHolds = max(0, self.duckHolds - 1)
+                    if self.duckHolds == 0 { self.setDuck(false) }
+                }
+            }
             player.currentTime = 0
             player.play()
         }
+    }
+
+    /// Toggle `.duckOthers` on the live session. Always called on `audioQueue`.
+    private func setDuck(_ on: Bool) {
+        let session = AVAudioSession.sharedInstance()
+        var options: AVAudioSession.CategoryOptions = [.mixWithOthers]
+        if on { options.insert(.duckOthers) }
+        try? session.setCategory(.playback, mode: .default, options: options)
+        try? session.setActive(true)
     }
 
     // MARK: CuePlaying
@@ -103,7 +136,6 @@ final class CuePlayer: NSObject, CuePlaying, AVAudioPlayerDelegate {
     func sessionFinished()  { play(bell); Haptics.buzz(0.6, times: 4) }
 
     func sessionDidBegin() {
-        let dims = dimsOtherAudio
         // Resolve the lazy players on the calling thread (so their initialisers
         // aren't raced), but do every audio-server call on the background queue —
         // `setActive` / `prepareToPlay` / `play` all block while the server is
@@ -113,10 +145,9 @@ final class CuePlayer: NSObject, CuePlaying, AVAudioPlayerDelegate {
         audioQueue.async {
             let session = AVAudioSession.sharedInstance()
             // `.playback` ignores the mute switch; `.mixWithOthers` keeps the
-            // fighter's music going, `.duckOthers` lowers it under the cues.
-            var options: AVAudioSession.CategoryOptions = [.mixWithOthers]
-            if dims { options.insert(.duckOthers) }
-            try? session.setCategory(.playback, mode: .default, options: options)
+            // fighter's music going. `.duckOthers` is *not* set here — it is
+            // toggled per cue in `play(_:)` so music only dips as a bell rings.
+            try? session.setCategory(.playback, mode: .default, options: [.mixWithOthers])
             try? session.setActive(true)
             players.forEach { $0?.prepareToPlay() }
             loop?.play()
@@ -143,6 +174,7 @@ final class CuePlayer: NSObject, CuePlaying, AVAudioPlayerDelegate {
 
     /// Always called on `audioQueue`.
     private func teardown() {
+        duckHolds = 0
         keepAlive?.stop()
         try? AVAudioSession.sharedInstance()
             .setActive(false, options: .notifyOthersOnDeactivation)

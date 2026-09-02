@@ -75,12 +75,17 @@ enum Copy {
         }
         static var lastRound: String { t("timer.lastRound", "Last round") }
 
-        static var saveTitle: String { t("timer.save.title", "Save this workout?") }
-        static var saveMessage: String {
-            t("timer.save.message", "Add it to your history with the rounds you finished.")
+        static var getReady: String { t("timer.getReady", "Get ready") }
+
+        static var stopTitle: String { t("timer.stop.title", "Stop this workout?") }
+        static var stopMessage: String { t("timer.stop.message", "The workout ends here.") }
+        static var stopMessageSave: String {
+            t("timer.stop.message.save", "You can keep the rounds you've done in your history.")
         }
-        static var saveKeep: String { t("timer.save.keep", "Save") }
-        static var saveDiscard: String { t("timer.save.discard", "Don't save") }
+        static var stopConfirm: String { t("timer.stop.confirm", "Stop") }
+        static var stopSave: String { t("timer.stop.save", "Save & finish") }
+        static var stopDiscard: String { t("timer.stop.discard", "Discard") }
+        static var stopResume: String { t("timer.stop.resume", "Keep going") }
     }
 
     enum History {
@@ -119,15 +124,16 @@ enum Copy {
         static var saveWorkout: String {
             t("settings.saveWorkout", "Save your last workout")
         }
-        static var saveWorkoutCaption: String {
-            t("settings.saveWorkoutCaption", "When on, your setup — rounds, round length and rest — is remembered for next time. When off, it opens at 12 rounds of 3:00 with 1:00 rest.")
-        }
         static var audio: String { t("settings.audio", "Audio") }
+        static var muteCues: String { t("settings.muteCues", "Silent workout") }
+        static var muteCuesCaption: String {
+            t("settings.muteCuesCaption", "No bell or clap — just the vibration for every round and warning. For a crowded gym or a quiet room.")
+        }
         static var dimOtherAudio: String {
             t("settings.dimOtherAudio", "Dim other audio during cues")
         }
         static var dimOtherAudioCaption: String {
-            t("settings.dimOtherAudioCaption", "Cues always play alongside your music, even on silent. When on, your music is lowered for the whole workout so every bell and clap stands out.")
+            t("settings.dimOtherAudioCaption", "Cues always play alongside your music, even on silent. When on, your music dips just for the moment a bell or clap sounds, then comes straight back.")
         }
     }
 }
