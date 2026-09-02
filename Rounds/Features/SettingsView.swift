@@ -1,31 +1,24 @@
 import SwiftUI
 import UIWorkouts
 
-/// The whole of Settings for the MVP: appearance, and whether cues dim music.
+/// Settings: Rounds Pro, appearance, whether the setup is remembered, and audio.
 struct SettingsView: View {
     @AppStorage("rounds.theme") private var theme: WKAppearance = .dark
     @AppStorage("rounds.dimOtherAudio") private var dimOtherAudio = true
     @AppStorage("rounds.muteCues") private var muteCues = false
-    @AppStorage(FreeWorkoutStore.saveKey) private var saveWorkout = true
+
+    @Environment(ProStore.self) private var pro
+    @State private var showPaywall = false
 
     var body: some View {
         NavigationStack {
             ScrollView {
                 VStack(alignment: .leading, spacing: WKSpace.xl) {
+                    proRow
+
                     VStack(alignment: .leading, spacing: WKSpace.md) {
                         WKSectionHeader(Copy.Settings.appearance)
                         WKThemePicker(selection: $theme)
-                    }
-
-                    VStack(alignment: .leading, spacing: WKSpace.md) {
-                        WKSectionHeader(Copy.Settings.workout)
-                        WKToggleRow(Copy.Settings.saveWorkout, isOn: $saveWorkout)
-                            .background(WKColor.surface)
-                            .clipShape(RoundedRectangle(cornerRadius: WKRadius.card, style: .continuous))
-                    }
-                    .onChange(of: saveWorkout) { _, _ in
-                        // Switched off → forget the current setup now.
-                        FreeWorkoutStore.resetIfNotSaving()
                     }
 
                     VStack(alignment: .leading, spacing: WKSpace.md) {
@@ -56,9 +49,40 @@ struct SettingsView: View {
             .navigationTitle(Copy.Settings.title)
             .navigationBarTitleDisplayMode(.inline)
         }
+        .sheet(isPresented: $showPaywall) {
+            RoundsProPaywall(onClose: { showPaywall = false })
+        }
+        .proErrorAlert(pro)
+    }
+
+    // MARK: - Rounds Pro
+
+    @ViewBuilder private var proRow: some View {
+        VStack(alignment: .leading, spacing: WKSpace.md) {
+            WKSectionHeader(Copy.Settings.pro)
+
+            if pro.isPro {
+                HStack(spacing: WKSpace.sm) {
+                    Text(Copy.Settings.proOwned)
+                        .wkFont(.body)
+                        .foregroundStyle(WKColor.textPrimary)
+                    Spacer(minLength: WKSpace.sm)
+                    Image(systemName: "checkmark.seal.fill")
+                        .foregroundStyle(WKColor.accent)
+                }
+                .wkRowMetrics()
+                .background(WKColor.surface)
+                .clipShape(RoundedRectangle(cornerRadius: WKRadius.card, style: .continuous))
+            } else {
+                WKNavRow(Copy.Settings.proUnlock, value: pro.displayPrice) { showPaywall = true }
+                    .background(WKColor.surface)
+                    .clipShape(RoundedRectangle(cornerRadius: WKRadius.card, style: .continuous))
+            }
+        }
     }
 }
 
 #Preview {
     SettingsView()
+        .environment(ProStore())
 }
