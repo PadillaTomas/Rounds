@@ -52,7 +52,6 @@ struct SettingsView: View {
         .sheet(isPresented: $showPaywall) {
             RoundsProPaywall(onClose: { showPaywall = false })
         }
-        .proErrorAlert(pro)
     }
 
     // MARK: - Rounds Pro

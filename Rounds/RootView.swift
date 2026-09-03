@@ -12,6 +12,7 @@ struct RootView: View {
             .tint(WKColor.accent)
             .preferredColorScheme(theme.colorScheme)
             .task { await pro.start() }
+            .proErrorAlert(pro)   // one owner for the whole app — see ProErrorAlert
     }
 }
 

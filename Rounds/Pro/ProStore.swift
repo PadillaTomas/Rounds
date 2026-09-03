@@ -45,10 +45,21 @@ final class ProStore {
 
     func loadProduct() async {
         do {
-            product = try await Product.products(for: [Self.productID]).first
+            let products = try await Product.products(for: [Self.productID])
+            product = products.first
+            #if DEBUG
+            if product == nil {
+                print("⚠️ [ProStore] no product for \(Self.productID) — not propagated to StoreKit yet, or wrong environment/signing")
+            } else {
+                print("✅ [ProStore] loaded \(Self.productID) @ \(product!.displayPrice)")
+            }
+            #endif
         } catch {
             // Non-fatal — the paywall falls back to a hard-coded price string.
             product = nil
+            #if DEBUG
+            print("⚠️ [ProStore] Product.products failed: \(error)")
+            #endif
         }
     }
 
@@ -85,6 +96,9 @@ final class ProStore {
             }
         } catch {
             lastError = Copy.Pro.errorFailed
+            #if DEBUG
+            print("⚠️ [ProStore] purchase failed: \(error)")
+            #endif
         }
     }
 

@@ -46,7 +46,8 @@ struct RoundsProPaywall: View {
             // `ProGate` swaps to the real content on its own.
             if isPro { onClose?() }
         }
-        .proErrorAlert(pro)
+        // The error alert lives once, on RootView — not here (this view can be
+        // alive twice: the locked History tab plus a Settings sheet).
     }
 }
 
