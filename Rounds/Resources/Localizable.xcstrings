@@ -357,6 +357,17 @@
         }
       }
     },
+    "pro.legal" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Terms & Privacy"
+          }
+        }
+      }
+    },
     "pro.price" : {
       "comment" : "%@ is the localized price, e.g. $3.99",
       "extractionState" : "manual",
@@ -369,24 +380,13 @@
         }
       }
     },
-    "pro.privacy" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Privacy Policy"
-          }
-        }
-      }
-    },
     "pro.restore" : {
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Restore Purchase"
+            "value" : "Restore Purchases"
           }
         }
       }
@@ -398,17 +398,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Every workout you finish, remembered — on your phone, nowhere else."
-          }
-        }
-      }
-    },
-    "pro.terms" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Terms of Use"
           }
         }
       }

@@ -140,9 +140,8 @@ enum Copy {
             t("pro.feat.share.detail", "A clean summary image to post anywhere.")
         }
         static var cta: String { t("pro.cta", "Unlock Rounds Pro") }
-        static var restore: String { t("pro.restore", "Restore Purchase") }
-        static var terms: String { t("pro.terms", "Terms of Use") }
-        static var privacy: String { t("pro.privacy", "Privacy Policy") }
+        static var restore: String { t("pro.restore", "Restore Purchases") }
+        static var legal: String { t("pro.legal", "Terms & Privacy") }
         static func price(_ displayPrice: String) -> String {
             String(localized: "pro.price", defaultValue: "\(displayPrice) · one-time, yours forever")
         }
