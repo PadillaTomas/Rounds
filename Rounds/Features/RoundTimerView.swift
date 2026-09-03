@@ -298,7 +298,9 @@ struct RoundTimerView: View {
     }
 }
 
+#if DEBUG
 #Preview {
     RoundTimerView(activity: .default)
         .modelContainer(RoundsStore.preview)
 }
+#endif

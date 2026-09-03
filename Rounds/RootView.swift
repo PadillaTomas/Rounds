@@ -31,8 +31,10 @@ struct MainTabView: View {
     }
 }
 
+#if DEBUG
 #Preview {
     RootView()
         .environment(ProStore())
         .modelContainer(RoundsStore.preview)
 }
+#endif
