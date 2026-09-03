@@ -141,6 +141,14 @@ enum Copy {
         }
         static var cta: String { t("pro.cta", "Unlock Rounds Pro") }
         static var restore: String { t("pro.restore", "Restore Purchase") }
+        static var terms: String { t("pro.terms", "Terms of Use") }
+        static var privacy: String { t("pro.privacy", "Privacy Policy") }
+
+        static var nudgeTitle: String { t("pro.nudge.title", "Keep your history") }
+        static var nudgeDetail: String {
+            t("pro.nudge.detail", "Rounds Pro remembers every workout — weekly totals, streaks, and a calendar of your training.")
+        }
+        static var nudgeCta: String { t("pro.nudge.cta", "See Rounds Pro") }
         static func price(_ displayPrice: String) -> String {
             String(localized: "pro.price", defaultValue: "\(displayPrice) · one-time, yours forever")
         }

@@ -26,6 +26,14 @@ struct RoundsProPaywall: View {
             priceLabel: Copy.Pro.price(pro.displayPrice),
             ctaLabel: Copy.Pro.cta,
             restoreLabel: Copy.Pro.restore,
+            legalLinks: [
+                // Apple's Standard EULA is always valid. Swap the Terms link to
+                // Rounds' own terms.html once the RO-20 legal pages publish.
+                .init(Copy.Pro.terms,
+                      URL(string: "https://www.apple.com/legal/internet-services/itunes/dev/stdeula/")!),
+                .init(Copy.Pro.privacy,
+                      URL(string: "https://padillatomas.github.io/Rounds/privacy.html")!),
+            ],
             isPurchasing: pro.purchaseInFlight,
             onPurchase: { Task { await pro.purchase() } },
             onRestore: { Task { await pro.restore() } },

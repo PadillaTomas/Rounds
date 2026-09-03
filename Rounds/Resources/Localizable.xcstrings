@@ -357,6 +357,39 @@
         }
       }
     },
+    "pro.nudge.cta" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "See Rounds Pro"
+          }
+        }
+      }
+    },
+    "pro.nudge.detail" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Rounds Pro remembers every workout — weekly totals, streaks, and a calendar of your training."
+          }
+        }
+      }
+    },
+    "pro.nudge.title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Keep your history"
+          }
+        }
+      }
+    },
     "pro.price" : {
       "comment" : "%@ is the localized price, e.g. $3.99",
       "extractionState" : "manual",
@@ -365,6 +398,17 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "%@ · one-time, yours forever!"
+          }
+        }
+      }
+    },
+    "pro.privacy" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Privacy Policy"
           }
         }
       }
@@ -387,6 +431,17 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Every workout you finish, remembered — on your phone, nowhere else."
+          }
+        }
+      }
+    },
+    "pro.terms" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Terms of Use"
           }
         }
       }
