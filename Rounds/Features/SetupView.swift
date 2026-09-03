@@ -233,5 +233,4 @@ struct PresetsSheet: View {
 
 #Preview {
     SetupView()
-        .environment(ProStore())
 }

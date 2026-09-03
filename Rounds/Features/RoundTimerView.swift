@@ -25,12 +25,8 @@ struct RoundTimerView: View {
     @State private var leadIn = Self.leadInSeconds
     @State private var didStartEngine = false
     @State private var leadInTimer: Timer?
-    /// The Rounds Pro nudge on the finished screen, and its "don't show again".
-    @State private var showPaywall = false
-    @AppStorage("rounds.pro.hidePostWorkoutNudge") private var nudgeMuted = false
     @Environment(\.dismiss) private var dismiss
     @Environment(\.modelContext) private var modelContext
-    @Environment(ProStore.self) private var pro
 
     /// A breather to set the phone down and get into stance before the first bell.
     private static let leadInSeconds = 5
@@ -48,10 +44,6 @@ struct RoundTimerView: View {
     }
 
     private var isCountingIn: Bool { !didStartEngine && leadIn > 0 }
-
-    /// Offer Rounds Pro on the finished screen — to free users only, and only
-    /// until they wave it away once.
-    private var showProNudge: Bool { isFinished && !pro.isPro && !nudgeMuted }
 
     private var isFinished: Bool { engine.runState == .finished }
     private var wkPhase: WKPhase { engine.phase.wkPhase }
@@ -111,9 +103,6 @@ struct RoundTimerView: View {
         } message: {
             Text(engine.completedRounds >= 1 ? Copy.Timer.stopMessageSave : Copy.Timer.stopMessage)
         }
-        .sheet(isPresented: $showPaywall) {
-            RoundsProPaywall(onClose: { showPaywall = false })
-        }
     }
 
     @ViewBuilder private var runningContent: some View {
@@ -148,20 +137,8 @@ struct RoundTimerView: View {
                 } else {
                     Color.clear.frame(height: WKSpace.lg)
                 }
-            } else if showProNudge {
-                WKConfirmCard(
-                    title: Copy.Pro.nudgeTitle,
-                    detail: Copy.Pro.nudgeDetail,
-                    primaryLabel: Copy.Pro.nudgeCta,
-                    onPrimary: { showPaywall = true },
-                    onDismiss: { withAnimation(.snappy) { nudgeMuted = true } }
-                )
-                .padding(.horizontal, WKSpace.lg)
-                .padding(.bottom, WKSpace.lg)
-                .transition(.move(edge: .bottom).combined(with: .opacity))
             }
         }
-        .animation(.snappy, value: showProNudge)
     }
 
     // MARK: - Lead-in
@@ -323,6 +300,5 @@ struct RoundTimerView: View {
 
 #Preview {
     RoundTimerView(activity: .default)
-        .environment(ProStore())
         .modelContainer(RoundsStore.preview)
 }
