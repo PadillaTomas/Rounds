@@ -77,12 +77,13 @@ schemes:
         RoundsTests: [test]
     run:
       config: Debug
-      # Local StoreKit products for the Rounds Pro paywall — no sandbox account
-      # needed. The real product is created in App Store Connect (RO-13).
-      storeKitConfiguration: Rounds.storekit
+      # `Rounds.storekit` holds local StoreKit products for the Rounds Pro
+      # paywall (offline, no sandbox account). It is NOT wired in here on purpose
+      # — the default run hits the real StoreKit environment (sandbox on a
+      # dev-signed build). To use the local mock: Edit Scheme › Run › Options ›
+      # StoreKit Configuration › Rounds.storekit.
     test:
       config: Debug
-      storeKitConfiguration: Rounds.storekit
       targets:
         - RoundsTests
     archive:
