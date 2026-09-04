@@ -119,7 +119,9 @@ private struct HistoryRow: View {
     }
 }
 
+#if DEBUG
 #Preview {
     HistoryView()
         .modelContainer(RoundsStore.preview)
 }
+#endif

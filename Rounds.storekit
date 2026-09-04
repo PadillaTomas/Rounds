@@ -1,0 +1,36 @@
+{
+  "identifier" : "E6F79FEF-35B1-4396-A093-FC15320183C0",
+  "nonRenewingSubscriptions" : [
+
+  ],
+  "products" : [
+    {
+      "displayPrice" : "3.99",
+      "familyShareable" : false,
+      "internalID" : "8BE51FCF-16C1-4689-B19F-922C3BDED685",
+      "localizations" : [
+        {
+          "description" : "Unlock activity history, the calendar, Apple Health export and the share card.",
+          "displayName" : "Rounds Pro",
+          "locale" : "en_US"
+        }
+      ],
+      "productID" : "com.padillatomas.Rounds.pro",
+      "referenceName" : "Rounds Pro",
+      "type" : "NonConsumable"
+    }
+  ],
+  "settings" : {
+    "_failTransactionsEnabled" : false,
+    "_storeKitErrors" : [
+
+    ]
+  },
+  "subscriptionGroups" : [
+
+  ],
+  "version" : {
+    "major" : 3,
+    "minor" : 0
+  }
+}

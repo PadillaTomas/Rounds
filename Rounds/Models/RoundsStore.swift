@@ -10,12 +10,21 @@ enum RoundsStore {
     /// The container the app runs on. A failure here is unrecoverable (the store
     /// is the 2.0 foundation), so we trap rather than limp along storeless.
     static func makeContainer() -> ModelContainer {
+        ensureStoreDirectory()
         let config = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
         do {
             return try ModelContainer(for: schema, configurations: [config])
         } catch {
             fatalError("Could not create the Rounds store: \(error)")
         }
+    }
+
+    /// SwiftData writes to `Library/Application Support/`, which doesn't exist on
+    /// a fresh device install — CoreData recovers on its own but logs a wall of
+    /// errors first. Creating it up front keeps the console clean.
+    private static func ensureStoreDirectory() {
+        try? FileManager.default.createDirectory(
+            at: .applicationSupportDirectory, withIntermediateDirectories: true)
     }
 
     #if DEBUG
