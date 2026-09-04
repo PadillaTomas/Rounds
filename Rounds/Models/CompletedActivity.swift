@@ -19,6 +19,11 @@ final class CompletedActivity {
     var restSeconds: Int
     /// The preset / saved-workout name this was started from, if any.
     var sourceName: String?
+    /// Perceived exertion, 1…10, from the finish screen. `nil` until rated.
+    var effortRating: Int?
+    /// Estimated active calories, frozen at record time. `nil` for rows written
+    /// before this was tracked.
+    var activeEnergyKcal: Double?
 
     init(startedAt: Date,
          elapsedSeconds: Int,
@@ -26,7 +31,9 @@ final class CompletedActivity {
          plannedRounds: Int,
          roundSeconds: Int,
          restSeconds: Int,
-         sourceName: String? = nil) {
+         sourceName: String? = nil,
+         effortRating: Int? = nil,
+         activeEnergyKcal: Double? = nil) {
         self.startedAt = startedAt
         self.elapsedSeconds = elapsedSeconds
         self.completedRounds = completedRounds
@@ -34,6 +41,8 @@ final class CompletedActivity {
         self.roundSeconds = roundSeconds
         self.restSeconds = restSeconds
         self.sourceName = sourceName
+        self.effortRating = effortRating
+        self.activeEnergyKcal = activeEnergyKcal
     }
 
     var isNonStop: Bool { plannedRounds <= 0 }

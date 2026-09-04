@@ -12,6 +12,13 @@ final class ProStore {
 
     /// The single source of truth for "can this user see Pro features".
     private(set) var isPro = false
+    /// One-shot: true the instant a purchase completes (this session, either
+    /// through `purchase()` or an out-of-band `Transaction.updates` event —
+    /// Ask to Buy, another device). NOT set by `syncEntitlement()`, so an
+    /// already-Pro user relaunching the app never sees it flip. `RootView`
+    /// reads it once to show the "You're Pro" confirmation, then it's done —
+    /// there's nothing to reset since it can only go false→true once per launch.
+    private(set) var justUnlocked = false
     private(set) var product: Product?
     private(set) var purchaseInFlight = false
     /// Set after a failed / pending purchase or a fruitless restore. The paywall
@@ -32,6 +39,7 @@ final class ProStore {
                 } else {
                     await transaction.finish()
                     self.isPro = true
+                    self.justUnlocked = true
                 }
             }
         }
@@ -106,6 +114,7 @@ final class ProStore {
                 // `currentEntitlements` here — it can lag a beat and would
                 // momentarily flip the unlock back off.
                 isPro = true
+                justUnlocked = true
             case .userCancelled:
                 break
             case .pending:

@@ -80,6 +80,39 @@ final class RoundTimerEngineTests: XCTestCase {
         XCTAssertEqual(engine.runState, .running)
     }
 
+    func testSegmentsAndEndTimeRecordEveryPhaseInOrder() {
+        // 2 rounds, 10 s work / 5 s rest — finite, so the last round has no rest.
+        let (engine, _, advance, tick) = makeEngine()
+        engine.start()
+        tick(10); advance()                      // work 1 → rest 1
+        tick(5);  advance()                      // rest 1 → work 2
+        tick(10); advance()                      // work 2 → finished
+
+        XCTAssertEqual(engine.segments.map { "\($0.round)\($0.phase)" },
+                       ["1work", "1rest", "2work"])
+        XCTAssertEqual(engine.segments.first?.interval.duration, 10)
+        XCTAssertEqual(engine.segments.last?.interval.end, engine.sessionEnd)
+        XCTAssertEqual(engine.sessionEnd?.timeIntervalSince(engine.sessionStart), 25)
+        XCTAssertTrue(engine.pauseIntervals.isEmpty)
+    }
+
+    func testPauseIntervalsAreRecordedWallClock() {
+        let (engine, _, advance, tick) = makeEngine(
+            RoundsActivity(rounds: 5, configuredRoundSeconds: 10, configuredRestSeconds: 5))
+        engine.start()
+        tick(4); advance()
+        engine.togglePause()
+        tick(3); advance()                       // paused
+        engine.togglePause()                     // resume after 3 s
+        tick(6); advance()                       // work 1 ends (active 10 s)
+        engine.stop()
+
+        XCTAssertEqual(engine.pauseIntervals.count, 1)
+        XCTAssertEqual(engine.pauseIntervals.first?.duration, 3)
+        // The work-1 segment spans wall-clock, so it includes the paused 3 s.
+        XCTAssertEqual(engine.segments.first?.interval.duration, 13)
+    }
+
     func testStopFinishesWithoutAFinalBellAndIsIdempotent() {
         let (engine, spy, _, _) = makeEngine(
             RoundsActivity(rounds: 5, configuredRoundSeconds: 10, configuredRestSeconds: 5))

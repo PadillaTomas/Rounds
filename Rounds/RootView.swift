@@ -6,6 +6,7 @@ import UIWorkouts
 struct RootView: View {
     @AppStorage("rounds.theme") private var theme: WKAppearance = .dark
     @Environment(ProStore.self) private var pro
+    @State private var showProUnlocked = false
 
     var body: some View {
         MainTabView()
@@ -13,6 +14,12 @@ struct RootView: View {
             .preferredColorScheme(theme.colorScheme)
             .task { await pro.start() }
             .proErrorAlert(pro)   // one owner for the whole app — see ProErrorAlert
+            .onChange(of: pro.justUnlocked) { _, unlocked in
+                if unlocked { showProUnlocked = true }
+            }
+            .sheet(isPresented: $showProUnlocked) {
+                ProUnlockedSheet()
+            }
     }
 }
 

@@ -6,6 +6,12 @@
 	<false/>
 	<key>NSPrivacyTrackingDomains</key>
 	<array/>
+	<!-- HealthKit (RO-14): Rounds writes finished workouts (session, rounds,
+	     estimated energy, effort) to the on-device Health store and reads only the
+	     latest body-mass sample to estimate energy. Nothing is transmitted, so
+	     nothing is "collected" in Apple's sense — NSPrivacyCollectedDataTypes stays
+	     empty. HealthKit is also not a "required reason" API, so it needs no entry
+	     in NSPrivacyAccessedAPITypes below. -->
 	<key>NSPrivacyCollectedDataTypes</key>
 	<array/>
 	<key>NSPrivacyAccessedAPITypes</key>

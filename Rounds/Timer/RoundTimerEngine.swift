@@ -22,6 +22,20 @@ final class RoundTimerEngine {
 
     /// When the workout started (fixed at ``start()``, unaffected by pauses).
     @ObservationIgnored private(set) var sessionStart = Date()
+    /// Wall-clock finish time, set once in ``finish(_:)``.
+    @ObservationIgnored private(set) var sessionEnd: Date?
+
+    /// One wall-clock span per work / rest period the workout actually ran
+    /// through, in order. Powers the per-round segments written to Health.
+    @ObservationIgnored private(set) var segments: [Segment] = []
+    /// Every paused span, wall-clock. Written to Health as pause / resume events.
+    @ObservationIgnored private(set) var pauseIntervals: [DateInterval] = []
+
+    struct Segment: Equatable {
+        let round: Int
+        let phase: RoundPhase
+        let interval: DateInterval
+    }
 
     let sequence: RoundSequence
 
@@ -31,6 +45,11 @@ final class RoundTimerEngine {
     @ObservationIgnored private var pauseDate: Date?
     @ObservationIgnored private var lastCrossed = -1
     @ObservationIgnored private var ticker: Timer?
+
+    // Open segment being timed — closed on every round/phase change and at finish.
+    @ObservationIgnored private var segmentStart: Date?
+    @ObservationIgnored private var segmentRound = 1
+    @ObservationIgnored private var segmentPhase: RoundPhase = .work
 
     init(activity: RoundsActivity,
          cues: CuePlaying = CuePlayer(),
@@ -61,6 +80,9 @@ final class RoundTimerEngine {
         cues.sessionDidBegin()
         sessionStart = now()
         startDate = now()
+        segmentStart = sessionStart
+        segmentRound = 1
+        segmentPhase = .work
         advance()               // fires the first bell, sets round 1 / work
         startTicker()
     }
@@ -73,7 +95,9 @@ final class RoundTimerEngine {
             ticker?.invalidate(); ticker = nil
         case .paused:
             if let pauseDate {
-                startDate += now().timeIntervalSince(pauseDate)
+                let resumed = now()
+                startDate += resumed.timeIntervalSince(pauseDate)
+                pauseIntervals.append(DateInterval(start: pauseDate, end: resumed))
             }
             pauseDate = nil
             runState = .running
@@ -126,10 +150,24 @@ final class RoundTimerEngine {
         }
 
         let tick = sequence.tick(atElapsed: elapsed)
+        if tick.round != segmentRound || tick.phase != segmentPhase {
+            closeSegment(at: now())
+            segmentRound = tick.round
+            segmentPhase = tick.phase
+            segmentStart = now()
+        }
         round = tick.round
         phase = tick.phase
         remaining = tick.remaining
         if tick.isFinished { finish(.completed) }
+    }
+
+    /// Append the open segment (if it has real duration) and clear it.
+    private func closeSegment(at end: Date) {
+        defer { segmentStart = nil }
+        guard let start = segmentStart, end > start else { return }
+        segments.append(Segment(round: segmentRound, phase: segmentPhase,
+                                interval: DateInterval(start: start, end: end)))
     }
 
     private func fire(_ cue: Cue?) {
@@ -144,7 +182,10 @@ final class RoundTimerEngine {
 
     private func finish(_ reason: FinishReason) {
         guard runState != .finished else { return }
+        let end = now()
         finalElapsed = elapsedSeconds()
+        sessionEnd = end
+        closeSegment(at: end)
         finishReason = reason
         runState = .finished
         ticker?.invalidate(); ticker = nil
