@@ -25,6 +25,9 @@ final class HealthWriter {
     struct Workout {
         var start: Date
         var end: Date
+        /// Seconds actually worked out — paused time excluded. Used for the
+        /// energy estimate so it matches the History row exactly.
+        var activeSeconds: Int
         var roundSeconds: Int
         var restSeconds: Int
         var plannedRounds: Int
@@ -72,7 +75,7 @@ final class HealthWriter {
         let config = HKWorkoutConfiguration()
         config.activityType = type
 
-        let bodyMassKg = await latestBodyMassKg() ?? 70
+        let bodyMassKg = await latestBodyMassKg() ?? WorkoutEnergy.defaultBodyMassKg
         let energyKcal = estimatedActiveEnergyKcal(type: type, workout: w, bodyMassKg: bodyMassKg)
 
         let builder = HKWorkoutBuilder(healthStore: store, configuration: config, device: .local())
@@ -133,37 +136,33 @@ final class HealthWriter {
 
     // MARK: - Estimation
 
-    /// MET intensities from the 2024 Adult Compendium of Physical Activities:
-    /// "boxing, simulated boxing round" and "HIIT, vigorous". Population averages —
-    /// the estimate is rough by design; a real figure needs a heart-rate source.
-    private static let boxingMET = 9.3
-    private static let hiitMET = 8.0
-
-    /// MET-based estimate: `MET × body-mass(kg) × active-hours`. Rest periods and
-    /// paused time are excluded from the active duration.
+    /// Same estimate the History row shows — `WorkoutEnergy` over the active
+    /// seconds.
     private func estimatedActiveEnergyKcal(type: HKWorkoutActivityType,
                                            workout w: Workout,
                                            bodyMassKg: Double) -> Double? {
-        let paused = w.pauses.reduce(0) { $0 + $1.duration }
-        let activeHours = max(0, w.end.timeIntervalSince(w.start) - paused) / 3600
-        guard activeHours > 0 else { return nil }
-        let met = type == .boxing ? Self.boxingMET : Self.hiitMET
-        return met * bodyMassKg * activeHours
+        let kcal = WorkoutEnergy.kcal(isBoxing: type == .boxing,
+                                      activeSeconds: w.activeSeconds,
+                                      bodyMassKg: bodyMassKg)
+        return kcal > 0 ? kcal : nil
     }
 
+    /// Latest body mass from Health, and cache it for the history estimate.
     private func latestBodyMassKg() async -> Double? {
-        await withCheckedContinuation { continuation in
+        let kg: Double? = await withCheckedContinuation { continuation in
             let query = HKSampleQuery(
                 sampleType: HKQuantityType(.bodyMass),
                 predicate: nil,
                 limit: 1,
                 sortDescriptors: [NSSortDescriptor(key: HKSampleSortIdentifierEndDate, ascending: false)]
             ) { _, samples, _ in
-                let kg = (samples?.first as? HKQuantitySample)?
+                let value = (samples?.first as? HKQuantitySample)?
                     .quantity.doubleValue(for: .gramUnit(with: .kilo))
-                continuation.resume(returning: kg)
+                continuation.resume(returning: value)
             }
             store.execute(query)
         }
+        if let kg { WorkoutEnergy.cachedBodyMassKg = kg }
+        return kg
     }
 }

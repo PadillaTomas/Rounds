@@ -80,12 +80,12 @@ final class CuePlayer: NSObject, CuePlaying, AVAudioPlayerDelegate {
     /// Every bell — round start, round end, end of fight — is the same recorded
     /// double bell-hit. Synth fallback only if the bundled file is missing.
     private lazy var bell: AVAudioPlayer? = {
-        let player = BundledSound.player("final-bell", ext: "mp3", volume: 0.85)
-            ?? ToneSynth.bell(strikes: 3, gap: 0.01, decay: 1, volume: 1)
+        let player = BundledSound.player("final-bell", ext: "mp3", volume: 0.7)
+        ?? ToneSynth.bell(strikes: 3, gap: 0.01, decay: 1, volume: 0.7)
         player?.delegate = self
         return player
     }()
-    private lazy var warnClap = ToneSynth.clap(volume: 1)
+    private lazy var warnClap = ToneSynth.clap(volume: 0.85)
 
     /// Inaudible; loops forever. Keeps the run loop alive in the background.
     private lazy var keepAlive: AVAudioPlayer? = {
@@ -132,8 +132,8 @@ final class CuePlayer: NSObject, CuePlaying, AVAudioPlayerDelegate {
 
     func roundStarted()     { play(bell); Haptics.buzz(0.45) }
     func roundEnded()       { play(bell); Haptics.buzz(0.55) }
-    func tenSecondWarning() { play(warnClap); Haptics.tap(times: 3) }
-    func sessionFinished()  { play(bell); Haptics.buzz(0.6, times: 4) }
+    func tenSecondWarning() { play(warnClap); Haptics.tap(times: 2) }
+    func sessionFinished()  { play(bell); Haptics.buzz(0.6, times: 3) }
 
     func sessionDidBegin() {
         // Resolve the lazy players on the calling thread (so their initialisers

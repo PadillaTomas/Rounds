@@ -65,7 +65,8 @@ struct SettingsView: View {
 
     /// Pro-only. Flipping the toggle on drives HealthKit's own permission sheet;
     /// iOS never tells us the outcome, so the toggle just records intent and the
-    /// write silently no-ops if permission was denied.
+    /// write silently no-ops if permission was denied. Deliberately no backfill —
+    /// only workouts done from here on are ever sent to Health.
     private var healthSection: some View {
         VStack(alignment: .leading, spacing: WKSpace.md) {
             WKSectionHeader(Copy.Settings.health)

@@ -13,6 +13,17 @@
         }
       }
     },
+    "common.notNow" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Not now"
+          }
+        }
+      }
+    },
     "common.ok" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -53,6 +64,152 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Delete this activity?"
+          }
+        }
+      }
+    },
+    "history.detail.duration" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Duration"
+          }
+        }
+      }
+    },
+    "history.detail.effort" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Effort"
+          }
+        }
+      }
+    },
+    "history.detail.effort.allOut" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "all out"
+          }
+        }
+      }
+    },
+    "history.detail.effort.easy" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "easy"
+          }
+        }
+      }
+    },
+    "history.detail.effort.hard" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "hard"
+          }
+        }
+      }
+    },
+    "history.detail.effort.moderate" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "moderate"
+          }
+        }
+      }
+    },
+    "history.detail.effortValue" : {
+      "comment" : "%1$lld effort rating, %2$@ bucket word",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$lld · %2$@"
+          }
+        }
+      }
+    },
+    "history.detail.energy" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Active energy"
+          }
+        }
+      }
+    },
+    "history.detail.kcal" : {
+      "comment" : "%lld is the estimated active calories",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld Cal"
+          }
+        }
+      }
+    },
+    "history.detail.restLength" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Rest length"
+          }
+        }
+      }
+    },
+    "history.detail.roundLength" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Round length"
+          }
+        }
+      }
+    },
+    "history.detail.rounds" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Rounds"
+          }
+        }
+      }
+    },
+    "history.detail.timing" : {
+      "comment" : "%1$@ work m:ss, %2$@ rest m:ss",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@ / %2$@"
           }
         }
       }
@@ -409,6 +566,28 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Track your training with Rounds Pro"
+          }
+        }
+      }
+    },
+    "pro.unlocked.enableHealth" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Enable Apple Health"
+          }
+        }
+      }
+    },
+    "pro.unlocked.title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "You're Pro"
           }
         }
       }

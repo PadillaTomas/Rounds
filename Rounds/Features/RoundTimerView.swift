@@ -19,6 +19,9 @@ struct RoundTimerView: View {
     @State private var recordedActivity: CompletedActivity?
     /// Perceived exertion picked on the finish screen, 1…10.
     @State private var effort = 6
+    /// Guards ``finishAndDismiss()`` against a double-tap firing the Health
+    /// write twice before the sheet has a chance to dismiss.
+    @State private var finishing = false
     /// The "Stop this workout?" confirmation.
     @State private var confirmStop = false
     /// True while we paused the engine ourselves to show that confirmation.
@@ -238,7 +241,11 @@ struct RoundTimerView: View {
             plannedRounds: activity.rounds,
             roundSeconds: activity.roundSeconds,
             restSeconds: activity.restSeconds,
-            sourceName: sourceName
+            sourceName: sourceName,
+            activeEnergyKcal: WorkoutEnergy.kcal(
+                isBoxing: activity.roundSeconds >= 60,
+                activeSeconds: engine.elapsed,
+                bodyMassKg: WorkoutEnergy.cachedBodyMassKg)
         )
         modelContext.insert(record)
         try? modelContext.save()
@@ -248,6 +255,8 @@ struct RoundTimerView: View {
     /// Done on the finish screen: store the effort rating, mirror the workout to
     /// Health (Pro + opted in), and close.
     private func finishAndDismiss() {
+        guard !finishing else { return }
+        finishing = true
         if let record = recordedActivity {
             record.effortRating = effort
             try? modelContext.save()
@@ -256,6 +265,7 @@ struct RoundTimerView: View {
                 let workout = HealthWriter.Workout(
                     start: engine.sessionStart,
                     end: engine.sessionEnd ?? Date(),
+                    activeSeconds: engine.elapsed,
                     roundSeconds: activity.roundSeconds,
                     restSeconds: activity.restSeconds,
                     plannedRounds: activity.rounds,

@@ -11,6 +11,7 @@ struct HistoryView: View {
     private var activities: [CompletedActivity]
 
     @State private var pendingDelete: CompletedActivity?
+    @State private var detail: CompletedActivity?
 
     private var stats: HistoryStats { HistoryStats(activities) }
 
@@ -26,12 +27,15 @@ struct HistoryView: View {
                         ScrollView {
                             VStack(spacing: WKSpace.sm) {
                                 ForEach(activities) { activity in
-                                    HistoryRow(activity: activity)
-                                        .contextMenu {
-                                            Button(Copy.History.delete, role: .destructive) {
-                                                pendingDelete = activity
-                                            }
+                                    Button { detail = activity } label: {
+                                        HistoryRow(activity: activity)
+                                    }
+                                    .buttonStyle(.plain)
+                                    .contextMenu {
+                                        Button(Copy.History.delete, role: .destructive) {
+                                            pendingDelete = activity
                                         }
+                                    }
                                 }
                             }
                             .padding(.bottom, WKSpace.lg)
@@ -55,6 +59,10 @@ struct HistoryView: View {
                 }
             } message: {
                 Text(Copy.History.deleteMessage)
+            }
+            .sheet(item: $detail) { activity in
+                WorkoutDetailSheet(activity: activity)
+                    .presentationDetents([.medium, .large])
             }
         }
     }
