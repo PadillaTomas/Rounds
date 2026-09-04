@@ -457,6 +457,61 @@
         }
       }
     },
+    "settings.health" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Apple Health"
+          }
+        }
+      }
+    },
+    "settings.health.deniedMessage" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "To add workouts to Health, allow it in the Health app under Sharing › Apps › Rounds."
+          }
+        }
+      }
+    },
+    "settings.health.deniedTitle" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Health access is off"
+          }
+        }
+      }
+    },
+    "settings.health.sync" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Add workouts to Health"
+          }
+        }
+      }
+    },
+    "settings.health.syncCaption" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Each finished workout is saved to the Health app — the session, its rounds, an estimate of calories burned, and how hard it felt. Rounds reads only your latest body weight, to estimate those calories."
+          }
+        }
+      }
+    },
     "settings.muteCues" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -673,6 +728,39 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Done"
+          }
+        }
+      }
+    },
+    "timer.effort.easy" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Easy"
+          }
+        }
+      }
+    },
+    "timer.effort.hard" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "All out"
+          }
+        }
+      }
+    },
+    "timer.effort.prompt" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "How hard was that?"
           }
         }
       }

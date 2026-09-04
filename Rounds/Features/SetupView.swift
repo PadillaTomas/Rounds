@@ -11,6 +11,9 @@ struct SetupView: View {
     @AppStorage(FreeWorkoutStore.restSecondsKey) private var freeRestSeconds = FreeWorkoutStore.defaultRestSeconds
     @AppStorage("rounds.dimOtherAudio") private var dimOtherAudio = true
     @AppStorage("rounds.muteCues") private var muteCues = false
+    @AppStorage("rounds.healthKitEnabled") private var healthKitEnabled = false
+
+    @Environment(ProStore.self) private var pro
 
     @State private var running: RoundsActivity?
     /// Name of the preset the running values came from, if they match one exactly.
@@ -42,7 +45,8 @@ struct SetupView: View {
             RoundTimerView(activity: activity,
                            sourceName: runningSource,
                            dimOtherAudio: dimOtherAudio,
-                           muteCues: muteCues)
+                           muteCues: muteCues,
+                           writeToHealth: pro.isPro && healthKitEnabled)
         }
     }
 
@@ -233,4 +237,5 @@ struct PresetsSheet: View {
 
 #Preview {
     SetupView()
+        .environment(ProStore())
 }

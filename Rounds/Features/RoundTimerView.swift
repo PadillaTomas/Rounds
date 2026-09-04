@@ -14,8 +14,11 @@ struct RoundTimerView: View {
     let sourceName: String?
 
     @State private var engine: RoundTimerEngine
-    /// Guards the one-shot history write.
-    @State private var recorded = false
+    /// The history row for this run — inserted once when the workout finishes,
+    /// then updated with the effort rating (and mirrored to Health) on Done.
+    @State private var recordedActivity: CompletedActivity?
+    /// Perceived exertion picked on the finish screen, 1…10.
+    @State private var effort = 6
     /// The "Stop this workout?" confirmation.
     @State private var confirmStop = false
     /// True while we paused the engine ourselves to show that confirmation.
@@ -28,15 +31,21 @@ struct RoundTimerView: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(\.modelContext) private var modelContext
 
+    /// Whether to also send the finished workout to Apple Health. Resolved by the
+    /// caller (Pro + the Settings toggle) so this view stays unaware of both.
+    private let writeToHealth: Bool
+
     /// A breather to set the phone down and get into stance before the first bell.
     private static let leadInSeconds = 5
 
     init(activity: RoundsActivity,
          sourceName: String? = nil,
          dimOtherAudio: Bool = true,
-         muteCues: Bool = false) {
+         muteCues: Bool = false,
+         writeToHealth: Bool = false) {
         self.activity = activity
         self.sourceName = sourceName
+        self.writeToHealth = writeToHealth
         _engine = State(wrappedValue: RoundTimerEngine(
             activity: activity,
             cues: CuePlayer(dimsOtherAudio: dimOtherAudio, muted: muteCues)
@@ -94,7 +103,8 @@ struct RoundTimerView: View {
         }
         .alert(Copy.Timer.stopTitle, isPresented: $confirmStop) {
             if engine.completedRounds >= 1 {
-                Button(Copy.Timer.stopSave) { engine.stop(); recordActivity(); dismiss() }
+                // Save & finish drops onto the finish screen (rate effort, then Done).
+                Button(Copy.Timer.stopSave) { engine.stop(); recordActivity() }
                 Button(Copy.Timer.stopDiscard, role: .destructive) { engine.stop(); dismiss() }
             } else {
                 Button(Copy.Timer.stopConfirm, role: .destructive) { engine.stop(); dismiss() }
@@ -126,7 +136,9 @@ struct RoundTimerView: View {
 
             Spacer(minLength: WKSpace.lg)
 
-            if !isFinished {
+            if isFinished {
+                effortPrompt
+            } else {
                 upNext
                     .padding(.horizontal, WKSpace.lg)
                 if !trackSegments.isEmpty {
@@ -139,6 +151,22 @@ struct RoundTimerView: View {
                 }
             }
         }
+    }
+
+    /// Shown on the finish screen — a 1…10 perceived-exertion pick, written to
+    /// history and (iOS 18+, Pro) to Health when the runner taps Done.
+    private var effortPrompt: some View {
+        VStack(spacing: WKSpace.sm) {
+            Text(Copy.Timer.effortPrompt)
+                .wkFont(.headline)
+                .foregroundStyle(WKColor.textPrimary)
+            WKScaleSelector(
+                range: 1...10, selection: $effort,
+                endLabels: (Copy.Timer.effortEasy, Copy.Timer.effortHard),
+                maxPerRow: 5)
+        }
+        .padding(.horizontal, WKSpace.lg)
+        .padding(.bottom, WKSpace.lg)
     }
 
     // MARK: - Lead-in
@@ -198,11 +226,12 @@ struct RoundTimerView: View {
         engine.togglePause()
     }
 
-    /// Write the finished workout to history — once.
+    /// Insert the history row — once — the moment the workout finishes. The
+    /// effort rating and the Health write happen later, on ``finishAndDismiss()``.
     private func recordActivity() {
-        guard !recorded, engine.runState == .finished else { return }
-        recorded = true
-        modelContext.insert(CompletedActivity(
+        guard recordedActivity == nil, engine.runState == .finished else { return }
+
+        let record = CompletedActivity(
             startedAt: engine.sessionStart,
             elapsedSeconds: engine.elapsed,
             completedRounds: engine.completedRounds,
@@ -210,8 +239,37 @@ struct RoundTimerView: View {
             roundSeconds: activity.roundSeconds,
             restSeconds: activity.restSeconds,
             sourceName: sourceName
-        ))
+        )
+        modelContext.insert(record)
         try? modelContext.save()
+        recordedActivity = record
+    }
+
+    /// Done on the finish screen: store the effort rating, mirror the workout to
+    /// Health (Pro + opted in), and close.
+    private func finishAndDismiss() {
+        if let record = recordedActivity {
+            record.effortRating = effort
+            try? modelContext.save()
+
+            if writeToHealth {
+                let workout = HealthWriter.Workout(
+                    start: engine.sessionStart,
+                    end: engine.sessionEnd ?? Date(),
+                    roundSeconds: activity.roundSeconds,
+                    restSeconds: activity.restSeconds,
+                    plannedRounds: activity.rounds,
+                    completedRounds: engine.completedRounds,
+                    pauses: engine.pauseIntervals,
+                    rounds: engine.segments
+                        .filter { $0.phase == .work }
+                        .map { .init(index: $0.round, interval: $0.interval) },
+                    effort: effort
+                )
+                Task { await HealthWriter.shared.save(workout) }
+            }
+        }
+        dismiss()
     }
 
     // MARK: - Header
@@ -282,7 +340,7 @@ struct RoundTimerView: View {
             }
         } else if isFinished {
             WKFooterActions {
-                WKButton(Copy.Timer.done, style: .primary) { dismiss() }
+                WKButton(Copy.Timer.done, style: .primary) { finishAndDismiss() }
             }
         } else {
             WKFooterActions {

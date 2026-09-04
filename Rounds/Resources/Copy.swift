@@ -78,6 +78,10 @@ enum Copy {
 
         static var getReady: String { t("timer.getReady", "Get ready") }
 
+        static var effortPrompt: String { t("timer.effort.prompt", "How hard was that?") }
+        static var effortEasy: String { t("timer.effort.easy", "Easy") }
+        static var effortHard: String { t("timer.effort.hard", "All out") }
+
         static var stopTitle: String { t("timer.stop.title", "Stop this workout?") }
         static var stopMessage: String { t("timer.stop.message", "The workout ends here.") }
         static var stopMessageSave: String {
@@ -179,5 +183,17 @@ enum Copy {
         static var pro: String { t("settings.pro", "Rounds Pro") }
         static var proUnlock: String { t("settings.pro.unlock", "Unlock") }
         static var proOwned: String { t("settings.pro.owned", "Unlocked") }
+
+        static var health: String { t("settings.health", "Apple Health") }
+        static var healthSync: String { t("settings.health.sync", "Add workouts to Health") }
+        static var healthSyncCaption: String {
+            t("settings.health.syncCaption", "Each finished workout is saved to the Health app — the session, its rounds, an estimate of calories burned, and how hard it felt. Rounds reads only your latest body weight, to estimate those calories.")
+        }
+        static var healthDeniedTitle: String {
+            t("settings.health.deniedTitle", "Health access is off")
+        }
+        static var healthDeniedMessage: String {
+            t("settings.health.deniedMessage", "To add workouts to Health, allow it in the Health app under Sharing › Apps › Rounds.")
+        }
     }
 }

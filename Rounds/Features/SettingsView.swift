@@ -1,14 +1,19 @@
+import HealthKit
 import SwiftUI
 import UIWorkouts
 
-/// Settings: Rounds Pro, appearance, whether the setup is remembered, and audio.
+/// Settings: Rounds Pro, appearance, audio, and — for Pro — Apple Health.
 struct SettingsView: View {
     @AppStorage("rounds.theme") private var theme: WKAppearance = .dark
     @AppStorage("rounds.dimOtherAudio") private var dimOtherAudio = true
     @AppStorage("rounds.muteCues") private var muteCues = false
+    @AppStorage("rounds.healthKitEnabled") private var healthKitEnabled = false
 
     @Environment(ProStore.self) private var pro
     @State private var showPaywall = false
+    @State private var showHealthDenied = false
+
+    private var healthAvailable: Bool { HKHealthStore.isHealthDataAvailable() }
 
     var body: some View {
         NavigationStack {
@@ -42,6 +47,8 @@ struct SettingsView: View {
                             .foregroundStyle(WKColor.textTertiary)
                             .fixedSize(horizontal: false, vertical: true)
                     }
+
+                    if pro.isPro && healthAvailable { healthSection }
                 }
                 .padding(WKSpace.lg)
             }
@@ -51,6 +58,39 @@ struct SettingsView: View {
         }
         .sheet(isPresented: $showPaywall) {
             RoundsProPaywall(onClose: { showPaywall = false })
+        }
+    }
+
+    // MARK: - Apple Health
+
+    /// Pro-only. Flipping the toggle on drives HealthKit's own permission sheet;
+    /// iOS never tells us the outcome, so the toggle just records intent and the
+    /// write silently no-ops if permission was denied.
+    private var healthSection: some View {
+        VStack(alignment: .leading, spacing: WKSpace.md) {
+            WKSectionHeader(Copy.Settings.health)
+
+            WKToggleRow(Copy.Settings.healthSync, isOn: $healthKitEnabled)
+                .background(WKColor.surface)
+                .clipShape(RoundedRectangle(cornerRadius: WKRadius.card, style: .continuous))
+                .onChange(of: healthKitEnabled) { _, on in
+                    guard on else { return }
+                    Task {
+                        if await HealthWriter.shared.requestAuthorization() == .denied {
+                            healthKitEnabled = false
+                            showHealthDenied = true
+                        }
+                    }
+                }
+            Text(Copy.Settings.healthSyncCaption)
+                .wkFont(.caption)
+                .foregroundStyle(WKColor.textTertiary)
+                .fixedSize(horizontal: false, vertical: true)
+        }
+        .alert(Copy.Settings.healthDeniedTitle, isPresented: $showHealthDenied) {
+            Button(Copy.Common.ok, role: .cancel) {}
+        } message: {
+            Text(Copy.Settings.healthDeniedMessage)
         }
     }
 

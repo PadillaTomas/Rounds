@@ -16,6 +16,7 @@ DerivedData/
 # The UIWorkouts version is pinned in project.yml (exactVersion), so no
 # Package.resolved is needed under version control.
 Generated-Info.plist
+Rounds.entitlements
 /Rounds.xcodeproj/
 
 # Swift Package Manager
