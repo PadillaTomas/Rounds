@@ -39,9 +39,28 @@ final class ProStore {
 
     /// Load the product and reconcile the entitlement. Call once at launch.
     func start() async {
+        #if DEBUG
+        await logStoreKitEnvironment()
+        #endif
         await loadProduct()
         await syncEntitlement()
     }
+
+    #if DEBUG
+    /// One-shot diagnostic: which App Store environment is this build talking to?
+    /// `Sandbox` = correct for a dev / TestFlight build. `Production` = wrong —
+    /// the run is signed/configured for the live store, where an unapproved IAP
+    /// doesn't exist. `Xcode` = the local .storekit mock.
+    private func logStoreKitEnvironment() async {
+        let bundle = Bundle.main.bundleIdentifier ?? "(nil)"
+        var env = "unknown (no app transaction)"
+        if let result = try? await AppTransaction.shared,
+           case .verified(let appTransaction) = result {
+            env = appTransaction.environment.rawValue
+        }
+        print("🔎 [ProStore] bundle=\(bundle)  storekit-env=\(env)  productID=\(Self.productID)")
+    }
+    #endif
 
     func loadProduct() async {
         do {
