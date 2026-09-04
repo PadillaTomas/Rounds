@@ -8,10 +8,16 @@ settings:
   base:
     SWIFT_VERSION: "5.9"
     CODE_SIGN_STYLE: Automatic
+    # Xcode "recommended settings" (new-project template defaults) — adopted so the
+    # generated project stays on Apple's current baseline. Sandboxing enforces
+    # input/output declarations on any future run-script phase; symbol generation
+    # makes String Catalog keys available as typed accessors.
+    ENABLE_USER_SCRIPT_SANDBOXING: YES
+    STRING_CATALOG_GENERATE_SYMBOLS: YES
     # Marketing version (App Store) and build number. Bump MARKETING_VERSION per
     # release; bump CURRENT_PROJECT_VERSION for every upload of the same version.
-    MARKETING_VERSION: "1.0.0"
-    CURRENT_PROJECT_VERSION: "3"
+    MARKETING_VERSION: "2.0.0"
+    CURRENT_PROJECT_VERSION: "1"
     # DEVELOPMENT_TEAM is intentionally not set. CODE_SIGN_STYLE = Automatic
     # resolves the one team on the account; Xcode stores the pick in the
     # (gitignored) generated project.
@@ -77,11 +83,13 @@ schemes:
         RoundsTests: [test]
     run:
       config: Debug
-      # `Rounds.storekit` holds local StoreKit products for the Rounds Pro
-      # paywall (offline, no sandbox account). It is NOT wired in here on purpose
-      # — the default run hits the real StoreKit environment (sandbox on a
-      # dev-signed build). To use the local mock: Edit Scheme › Run › Options ›
-      # StoreKit Configuration › Rounds.storekit.
+      # Local StoreKit products for the Rounds Pro paywall — offline, no sandbox
+      # account needed. Wired in because real sandbox testing of the *first* IAP
+      # is impossible until 2.0 is submitted for review with an app version (an
+      # App Store Connect rule), so this file is the only way to exercise the
+      # purchase / restore / entitlement flows before then. Has NO effect on
+      # archive / TestFlight / App Store builds — those ignore it entirely.
+      storeKitConfiguration: Rounds.storekit
     test:
       config: Debug
       targets:
