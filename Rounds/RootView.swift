@@ -5,6 +5,14 @@ import UIWorkouts
 /// set up / run the workout, history (Pro), and settings.
 struct RootView: View {
     @AppStorage("rounds.theme") private var theme: WKAppearance = .dark
+    /// Set the first time the "You're Pro" confirmation is shown, so it never
+    /// shows again — even if `pro.justUnlocked` fires again on a later launch.
+    /// `ProStore` is recreated fresh every launch, so `justUnlocked` alone
+    /// isn't a reliable "only once, ever" signal: StoreKit's `Transaction.updates`
+    /// can redeliver an already-owned transaction on a fresh launch (more so
+    /// against the local `.storekit` config used for testing), which would
+    /// otherwise flip `justUnlocked` true again and reopen this sheet.
+    @AppStorage("rounds.proUnlockedShown") private var proUnlockedShown = false
     @Environment(ProStore.self) private var pro
     @State private var showProUnlocked = false
 
@@ -15,7 +23,9 @@ struct RootView: View {
             .task { await pro.start() }
             .proErrorAlert(pro)   // one owner for the whole app — see ProErrorAlert
             .onChange(of: pro.justUnlocked) { _, unlocked in
-                if unlocked { showProUnlocked = true }
+                guard unlocked, !proUnlockedShown else { return }
+                showProUnlocked = true
+                proUnlockedShown = true
             }
             .sheet(isPresented: $showProUnlocked) {
                 ProUnlockedSheet()

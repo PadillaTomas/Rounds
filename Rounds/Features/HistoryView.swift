@@ -97,7 +97,7 @@ private struct HistoryRow: View {
         WKCard {
             VStack(alignment: .leading, spacing: WKSpace.xs) {
                 HStack(alignment: .firstTextBaseline) {
-                    Text(activity.startedAt.formatted(.dateTime.weekday().month().day().hour().minute()))
+                    Text(WKTimeFormat.calendarDate(activity.startedAt))
                         .wkFont(.callout)
                         .foregroundStyle(WKColor.textPrimary)
                     Spacer(minLength: WKSpace.sm)

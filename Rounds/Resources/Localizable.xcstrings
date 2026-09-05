@@ -1,7 +1,9 @@
 {
   "sourceLanguage" : "en",
   "strings" : {
-    "%@" : {},
+    "%@" : {
+
+    },
     "common.cancel" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -9,6 +11,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Cancel"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cancelar"
           }
         }
       }
@@ -21,6 +29,12 @@
             "state" : "translated",
             "value" : "Not now"
           }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ahora no"
+          }
         }
       }
     },
@@ -31,6 +45,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "OK"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aceptar"
           }
         }
       }
@@ -43,6 +63,12 @@
             "state" : "translated",
             "value" : "Delete"
           }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Eliminar"
+          }
         }
       }
     },
@@ -53,6 +79,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "It's removed from your history for good."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Se eliminará de tu historial para siempre."
           }
         }
       }
@@ -65,6 +97,12 @@
             "state" : "translated",
             "value" : "Delete this activity?"
           }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "¿Eliminar esta sesión?"
+          }
         }
       }
     },
@@ -75,6 +113,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Duration"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Duración"
           }
         }
       }
@@ -87,6 +131,12 @@
             "state" : "translated",
             "value" : "Effort"
           }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Esfuerzo"
+          }
         }
       }
     },
@@ -97,6 +147,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "all out"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "al máximo"
           }
         }
       }
@@ -109,6 +165,12 @@
             "state" : "translated",
             "value" : "easy"
           }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "fácil"
+          }
         }
       }
     },
@@ -119,6 +181,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "hard"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "difícil"
           }
         }
       }
@@ -131,6 +199,12 @@
             "state" : "translated",
             "value" : "moderate"
           }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "moderado"
+          }
         }
       }
     },
@@ -139,6 +213,12 @@
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$lld · %2$@"
+          }
+        },
+        "es" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "%1$lld · %2$@"
@@ -154,6 +234,12 @@
             "state" : "translated",
             "value" : "Active energy"
           }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Energía activa"
+          }
         }
       }
     },
@@ -162,6 +248,12 @@
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld Cal"
+          }
+        },
+        "es" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "%lld Cal"
@@ -177,6 +269,12 @@
             "state" : "translated",
             "value" : "Rest length"
           }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Duración del descanso"
+          }
         }
       }
     },
@@ -188,6 +286,12 @@
             "state" : "translated",
             "value" : "Round length"
           }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Duración del round"
+          }
         }
       }
     },
@@ -195,6 +299,12 @@
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Rounds"
+          }
+        },
+        "es" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Rounds"
@@ -211,6 +321,12 @@
             "state" : "translated",
             "value" : "%1$@ / %2$@"
           }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@ / %2$@"
+          }
         }
       }
     },
@@ -222,6 +338,12 @@
             "state" : "translated",
             "value" : "Your finished workouts show up here."
           }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tus entrenamientos terminados aparecerán aquí."
+          }
         }
       }
     },
@@ -230,6 +352,12 @@
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@ · %2$@ / %3$@"
+          }
+        },
+        "es" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "%1$@ · %2$@ / %3$@"
@@ -245,6 +373,12 @@
             "state" : "translated",
             "value" : "Recent"
           }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Reciente"
+          }
         }
       }
     },
@@ -253,6 +387,12 @@
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld rounds"
+          }
+        },
+        "es" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "%lld rounds"
@@ -269,6 +409,12 @@
             "state" : "translated",
             "value" : "%1$lld of %2$lld rounds"
           }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$lld de %2$lld rounds"
+          }
         }
       }
     },
@@ -276,6 +422,12 @@
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "1 round"
+          }
+        },
+        "es" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "1 round"
@@ -291,6 +443,12 @@
             "state" : "translated",
             "value" : "This week"
           }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Esta semana"
+          }
         }
       }
     },
@@ -301,6 +459,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "History"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Historial"
           }
         }
       }
@@ -313,6 +477,12 @@
             "state" : "translated",
             "value" : "Total rounds"
           }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Rounds totales"
+          }
         }
       }
     },
@@ -323,6 +493,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "A full championship fight — twelve three-minute rounds with a minute of rest between each."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Un combate de campeonato completo: doce rounds de tres minutos con un minuto de descanso entre cada uno."
           }
         }
       }
@@ -335,6 +511,12 @@
             "state" : "translated",
             "value" : "12 rounds · 3:00 work · 1:00 rest"
           }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "12 rounds · 3:00 trabajo · 1:00 descanso"
+          }
         }
       }
     },
@@ -345,6 +527,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Full Card"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cartelera completa"
           }
         }
       }
@@ -357,6 +545,12 @@
             "state" : "translated",
             "value" : "Default workouts"
           }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Entrenamientos predeterminados"
+          }
         }
       }
     },
@@ -367,6 +561,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Unlock Rounds Pro"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Desbloquear Rounds Pro"
           }
         }
       }
@@ -379,6 +579,12 @@
             "state" : "translated",
             "value" : "The purchase didn't go through — you haven't been charged."
           }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La compra no se completó; no se te ha realizado ningún cargo."
+          }
         }
       }
     },
@@ -389,6 +595,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Couldn't reach the App Store. Check your connection and try again."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No se pudo conectar con la App Store. Comprueba tu conexión e inténtalo de nuevo."
           }
         }
       }
@@ -401,6 +613,12 @@
             "state" : "translated",
             "value" : "Your purchase is waiting for approval. Rounds Pro unlocks once it goes through."
           }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tu compra está pendiente de aprobación. Rounds Pro se desbloqueará en cuanto se apruebe."
+          }
         }
       }
     },
@@ -411,6 +629,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "No previous purchase found on this Apple ID."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No se encontró ninguna compra anterior con este ID de Apple."
           }
         }
       }
@@ -423,6 +647,12 @@
             "state" : "translated",
             "value" : "Something went wrong"
           }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Algo salió mal"
+          }
         }
       }
     },
@@ -433,6 +663,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Your training on a month grid."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tu entrenamiento en una vista mensual."
           }
         }
       }
@@ -445,6 +681,12 @@
             "state" : "translated",
             "value" : "Calendar"
           }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Calendario"
+          }
         }
       }
     },
@@ -455,6 +697,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Send finished workouts to the Health app."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Envía tus entrenamientos terminados a la app Salud."
           }
         }
       }
@@ -467,6 +715,12 @@
             "state" : "translated",
             "value" : "Apple Health"
           }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Salud"
+          }
         }
       }
     },
@@ -477,6 +731,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Every finished workout, with weekly and total counts."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cada entrenamiento terminado, con totales semanales y generales."
           }
         }
       }
@@ -489,6 +749,12 @@
             "state" : "translated",
             "value" : "Activity history"
           }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Historial de actividad"
+          }
         }
       }
     },
@@ -499,6 +765,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "A clean summary image to post anywhere."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Una imagen resumen minimalista para compartir donde quieras."
           }
         }
       }
@@ -511,6 +783,12 @@
             "state" : "translated",
             "value" : "Share card"
           }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tarjeta para compartir"
+          }
         }
       }
     },
@@ -521,6 +799,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Terms & Privacy"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Términos y privacidad"
           }
         }
       }
@@ -534,6 +818,12 @@
             "state" : "translated",
             "value" : "%@ · one-time, yours forever!"
           }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ · pago único, tuyo para siempre!"
+          }
         }
       }
     },
@@ -544,6 +834,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Restore Purchases"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Restaurar compras"
           }
         }
       }
@@ -556,6 +852,12 @@
             "state" : "translated",
             "value" : "Every workout you finish, remembered — on your phone, nowhere else."
           }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cada entrenamiento que termines, guardado — tu teléfono, en ningún otro lugar."
+          }
         }
       }
     },
@@ -566,6 +868,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Track your training with Rounds Pro"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Entrena con Rounds Pro"
           }
         }
       }
@@ -578,6 +886,12 @@
             "state" : "translated",
             "value" : "Enable Apple Health"
           }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Activar Salud"
+          }
         }
       }
     },
@@ -588,6 +902,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "You're Pro"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ya eres Pro"
           }
         }
       }
@@ -600,6 +920,12 @@
             "state" : "translated",
             "value" : "Appearance"
           }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Apariencia"
+          }
         }
       }
     },
@@ -607,6 +933,12 @@
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Audio"
+          }
+        },
+        "es" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Audio"
@@ -622,6 +954,12 @@
             "state" : "translated",
             "value" : "Dim other audio during cues"
           }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Atenuar audio"
+          }
         }
       }
     },
@@ -632,6 +970,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "When on, your music dips just for the moment a bell or clap sounds, then comes straight back."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cuando está activado, tu música baja solo durante el instante en que suena una campana o un aplauso, y vuelve enseguida."
           }
         }
       }
@@ -644,6 +988,12 @@
             "state" : "translated",
             "value" : "Apple Health"
           }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Salud"
+          }
         }
       }
     },
@@ -654,6 +1004,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "To add workouts to Health, allow it in the Health app under Sharing › Apps › Rounds."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Para añadir tus entrenamientos a Salud, permite el acceso en la app Salud, en Compartir › Apps › Rounds."
           }
         }
       }
@@ -666,6 +1022,12 @@
             "state" : "translated",
             "value" : "Health access is off"
           }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "El acceso a Salud está desactivado"
+          }
         }
       }
     },
@@ -676,6 +1038,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Add workouts to Health"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Añadir entrenamientos a Salud"
           }
         }
       }
@@ -688,6 +1056,12 @@
             "state" : "translated",
             "value" : "Each finished workout is saved to the Health app — the session, its rounds, an estimate of calories burned, and how hard it felt. Rounds reads only your latest body weight, to estimate those calories."
           }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cada entrenamiento terminado se guarda en la app Salud: la sesión, sus rounds, una estimación de las calorías quemadas y la intensidad percibida. Rounds solo lee tu peso más reciente, para estimar esas calorías."
+          }
         }
       }
     },
@@ -698,6 +1072,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Silent workout"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Entrenamiento silencioso"
           }
         }
       }
@@ -710,6 +1090,12 @@
             "state" : "translated",
             "value" : "No bell or clap."
           }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sin campana ni aplauso."
+          }
         }
       }
     },
@@ -717,6 +1103,12 @@
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Rounds Pro"
+          }
+        },
+        "es" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Rounds Pro"
@@ -732,6 +1124,12 @@
             "state" : "translated",
             "value" : "Unlocked"
           }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Desbloqueado"
+          }
         }
       }
     },
@@ -742,6 +1140,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Unlock"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Desbloquear"
           }
         }
       }
@@ -754,6 +1158,12 @@
             "state" : "translated",
             "value" : "Settings"
           }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ajustes"
+          }
         }
       }
     },
@@ -764,6 +1174,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "A boxing-style interval timer — bell every round, a clap ten seconds before the bell."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Un temporizador de intervalos estilo boxeo: campana en cada round, un aplauso diez segundos antes de la campana."
           }
         }
       }
@@ -776,6 +1192,12 @@
             "state" : "translated",
             "value" : "Workout"
           }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Entrenamiento"
+          }
         }
       }
     },
@@ -786,6 +1208,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Non-Stop"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sin parar"
           }
         }
       }
@@ -798,6 +1226,12 @@
             "state" : "translated",
             "value" : "Rest length"
           }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Duración del descanso"
+          }
         }
       }
     },
@@ -809,6 +1243,12 @@
             "state" : "translated",
             "value" : "Round length"
           }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Duración del round"
+          }
         }
       }
     },
@@ -816,6 +1256,12 @@
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Rounds"
+          }
+        },
+        "es" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Rounds"
@@ -831,6 +1277,12 @@
             "state" : "translated",
             "value" : "Start"
           }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Empezar"
+          }
         }
       }
     },
@@ -842,6 +1294,12 @@
             "state" : "translated",
             "value" : "Set up your rounds"
           }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Configura tus rounds"
+          }
         }
       }
     },
@@ -849,6 +1307,12 @@
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "min"
+          }
+        },
+        "es" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "min"
@@ -864,6 +1328,12 @@
             "state" : "translated",
             "value" : "sec"
           }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "s"
+          }
         }
       }
     },
@@ -874,6 +1344,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "History"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Historial"
           }
         }
       }
@@ -886,6 +1362,12 @@
             "state" : "translated",
             "value" : "Settings"
           }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ajustes"
+          }
         }
       }
     },
@@ -896,6 +1378,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Workout"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Entrenamiento"
           }
         }
       }
@@ -908,6 +1396,12 @@
             "state" : "translated",
             "value" : "Done"
           }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Listo"
+          }
         }
       }
     },
@@ -918,6 +1412,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Easy"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fácil"
           }
         }
       }
@@ -930,6 +1430,12 @@
             "state" : "translated",
             "value" : "All out"
           }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Al máximo"
+          }
         }
       }
     },
@@ -940,6 +1446,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "How hard was that?"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "¿Qué tan duro fue?"
           }
         }
       }
@@ -952,6 +1464,12 @@
             "state" : "translated",
             "value" : "Get ready"
           }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Prepárate"
+          }
         }
       }
     },
@@ -962,6 +1480,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Last round"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Último round"
           }
         }
       }
@@ -975,6 +1499,12 @@
             "state" : "translated",
             "value" : "Next · %1$@ %2$@"
           }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Siguiente · %1$@ %2$@"
+          }
         }
       }
     },
@@ -985,6 +1515,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Pause"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pausa"
           }
         }
       }
@@ -997,6 +1533,12 @@
             "state" : "translated",
             "value" : "Rest"
           }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Descanso"
+          }
         }
       }
     },
@@ -1004,6 +1546,12 @@
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Round"
+          }
+        },
+        "es" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Round"
@@ -1019,6 +1567,12 @@
             "state" : "translated",
             "value" : "Resume"
           }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Reanudar"
+          }
         }
       }
     },
@@ -1027,6 +1581,12 @@
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Round %lld"
+          }
+        },
+        "es" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Round %lld"
@@ -1043,6 +1603,12 @@
             "state" : "translated",
             "value" : "Round %1$lld of %2$lld"
           }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Round %1$lld de %2$lld"
+          }
         }
       }
     },
@@ -1053,6 +1619,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Stop"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Detener"
           }
         }
       }
@@ -1065,6 +1637,12 @@
             "state" : "translated",
             "value" : "Stop"
           }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Detener"
+          }
         }
       }
     },
@@ -1075,6 +1653,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Discard"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Descartar"
           }
         }
       }
@@ -1087,6 +1671,12 @@
             "state" : "translated",
             "value" : "The workout ends here."
           }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "El entrenamiento termina aquí."
+          }
         }
       }
     },
@@ -1097,6 +1687,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "You can keep the rounds you've done in your history."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Puedes guardar los rounds que ya has hecho en tu historial."
           }
         }
       }
@@ -1109,6 +1705,12 @@
             "state" : "translated",
             "value" : "Keep going"
           }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Continuar"
+          }
         }
       }
     },
@@ -1119,6 +1721,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Save & finish"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Guardar y terminar"
           }
         }
       }
@@ -1131,6 +1739,12 @@
             "state" : "translated",
             "value" : "Stop this workout?"
           }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "¿Detener este entrenamiento?"
+          }
         }
       }
     },
@@ -1142,6 +1756,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "%1$lld of %2$lld"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$lld de %2$lld"
           }
         }
       }
