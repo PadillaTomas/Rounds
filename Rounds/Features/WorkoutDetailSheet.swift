@@ -54,7 +54,7 @@ struct WorkoutDetailSheet: View {
 
     private var header: some View {
         VStack(alignment: .leading, spacing: WKSpace.sm) {
-            WKLabelMono(activity.startedAt.formatted(.dateTime.month().day().hour().minute()))
+            WKLabelMono(WKTimeFormat.calendarDate(activity.startedAt, showsWeekday: false))
             Text(roundsValue)
                 .wkFont(.displayM)
                 .foregroundStyle(WKColor.textPrimary)
