@@ -18,6 +18,10 @@ private func t(_ key: StaticString, _ fallback: String.LocalizationValue) -> Str
 
 enum Copy {
 
+    /// The product name. A proper noun — never translated, so it doesn't go
+    /// through the catalog.
+    static let brand = "Rounds"
+
     enum Tabs {
         static var workout: String { t("tabs.workout", "Workout") }
         static var history: String { t("tabs.history", "History") }
@@ -123,17 +127,27 @@ enum Copy {
         static func timing(_ work: String, _ rest: String) -> String {
             String(localized: "history.detail.timing", defaultValue: "\(work) / \(rest)")
         }
+        /// "hard" — the HealthKit-style bucket word for a 1…10 rating, on its own.
+        static func effortWord(_ rating: Int) -> String {
+            switch rating {
+            case ...3:  return t("history.detail.effort.easy", "easy")
+            case 4...6: return t("history.detail.effort.moderate", "moderate")
+            case 7...8: return t("history.detail.effort.hard", "hard")
+            default:    return t("history.detail.effort.allOut", "all out")
+            }
+        }
         /// "7 · hard" — number plus the HealthKit-style bucket word.
         static func effortValue(_ rating: Int) -> String {
-            let word: String
-            switch rating {
-            case ...3:  word = t("history.detail.effort.easy", "easy")
-            case 4...6: word = t("history.detail.effort.moderate", "moderate")
-            case 7...8: word = t("history.detail.effort.hard", "hard")
-            default:    word = t("history.detail.effort.allOut", "all out")
-            }
-            return String(localized: "history.detail.effortValue",
-                          defaultValue: "\(rating) · \(word)")
+            String(localized: "history.detail.effortValue",
+                   defaultValue: "\(rating) · \(effortWord(rating))")
+        }
+
+        /// "Work 0:10" / "Rest 0:05" — the share card's phase-timing chips.
+        static func workChip(_ clock: String) -> String {
+            String(localized: "history.detail.workChip", defaultValue: "Work \(clock)")
+        }
+        static func restChip(_ clock: String) -> String {
+            String(localized: "history.detail.restChip", defaultValue: "Rest \(clock)")
         }
 
         /// "1 round" / "12 rounds".
@@ -149,6 +163,18 @@ enum Copy {
         static func line(_ rounds: String, _ work: String, _ rest: String) -> String {
             String(localized: "history.line", defaultValue: "\(rounds) · \(work) / \(rest)")
         }
+
+        /// "12 rounds" or "8 of 12 rounds", from the pure summary.
+        static func rounds(_ summary: CompletedActivity.RoundsSummary) -> String {
+            switch summary {
+            case .total(let n):            return roundsCount(n)
+            case .partial(let d, let p):   return roundsOf(d, p)
+            }
+        }
+
+        static var share: String { t("history.share", "Share workout") }
+        /// Shown as the share-sheet preview caption.
+        static var sharePreviewTitle: String { t("history.share.preview", "Rounds workout") }
     }
 
     enum Pro {

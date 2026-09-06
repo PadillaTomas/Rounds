@@ -261,6 +261,24 @@
         }
       }
     },
+    "history.detail.restChip" : {
+      "comment" : "Share card rest chip — %@ is m:ss",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Rest %@"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Descanso %@"
+          }
+        }
+      }
+    },
     "history.detail.restLength" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -326,6 +344,24 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "%1$@ / %2$@"
+          }
+        }
+      }
+    },
+    "history.detail.workChip" : {
+      "comment" : "Share card work chip — %@ is m:ss",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Work %@"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Trabajo %@"
           }
         }
       }
@@ -431,6 +467,40 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "1 round"
+          }
+        }
+      }
+    },
+    "history.share" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Share workout"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Compartir entrenamiento"
+          }
+        }
+      }
+    },
+    "history.share.preview" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Rounds workout"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Entrenamiento de Rounds"
           }
         }
       }
