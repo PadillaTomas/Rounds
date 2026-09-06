@@ -9,6 +9,10 @@ import UIWorkouts
 struct WorkoutDetailSheet: View {
     let activity: CompletedActivity
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.colorScheme) private var colorScheme
+    /// The share card, rendered when the sheet appears and again if the
+    /// appearance changes under it.
+    @State private var shareCard: Image?
 
     var body: some View {
         ZStack(alignment: .top) {
@@ -42,14 +46,28 @@ struct WorkoutDetailSheet: View {
                                         value: WKTimeFormat.clock(activity.restSeconds))
                         }
                     }
+
                 }
                 .padding(WKSpace.lg)
                 .padding(.top, WKSpace.xl)
+            }
+            .overlay(alignment: .topTrailing) {
+                if let shareCard {
+                    WKShareLink(image: shareCard,
+                                previewTitle: Copy.History.sharePreviewTitle)
+                        .accessibilityLabel(Copy.History.share)
+                        .padding(WKSpace.lg)
+                }
             }
         }
         .presentationBackground(WKColor.bg)
         .presentationDragIndicator(.visible)
         .presentationDetents([.large])
+        .task(id: colorScheme) {
+            shareCard = WorkoutShareCard(activity: activity)
+                .rendered(colorScheme: colorScheme)
+                .map(Image.init(uiImage:))
+        }
     }
 
     private var header: some View {
@@ -71,12 +89,7 @@ struct WorkoutDetailSheet: View {
         return Copy.History.kcalValue(Int(kcal.rounded()))
     }
 
-    private var roundsValue: String {
-        if activity.isNonStop || activity.completedRounds >= activity.plannedRounds {
-            return Copy.History.roundsCount(activity.completedRounds)
-        }
-        return Copy.History.roundsOf(activity.completedRounds, activity.plannedRounds)
-    }
+    private var roundsValue: String { Copy.History.rounds(activity.roundsSummary) }
 
     /// Underline only when there's a target to be a fraction of.
     private var roundsFraction: Double? {

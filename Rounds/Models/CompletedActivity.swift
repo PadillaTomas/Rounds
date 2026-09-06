@@ -46,4 +46,19 @@ final class CompletedActivity {
     }
 
     var isNonStop: Bool { plannedRounds <= 0 }
+
+    /// How the round count reads: a plain total (finished the plan, or Non-Stop),
+    /// or "done of planned" when the workout was stopped early. Pure — the
+    /// history row, the detail sheet and the share card all describe rounds the
+    /// same way through this.
+    enum RoundsSummary: Equatable {
+        case total(Int)
+        case partial(done: Int, planned: Int)
+    }
+
+    var roundsSummary: RoundsSummary {
+        if isNonStop { return .total(completedRounds) }
+        if completedRounds >= plannedRounds { return .total(plannedRounds) }
+        return .partial(done: completedRounds, planned: plannedRounds)
+    }
 }

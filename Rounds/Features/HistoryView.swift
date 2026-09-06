@@ -113,14 +113,8 @@ private struct HistoryRow: View {
     }
 
     private var roundsLine: String {
-        let rounds: String
-        if activity.isNonStop {
-            rounds = "\(Copy.Setup.infinite) · \(Copy.History.roundsCount(activity.completedRounds))"
-        } else if activity.completedRounds >= activity.plannedRounds {
-            rounds = Copy.History.roundsCount(activity.plannedRounds)
-        } else {
-            rounds = Copy.History.roundsOf(activity.completedRounds, activity.plannedRounds)
-        }
+        let count = Copy.History.rounds(activity.roundsSummary)
+        let rounds = activity.isNonStop ? "\(Copy.Setup.infinite) · \(count)" : count
         return Copy.History.line(rounds,
                                  WKTimeFormat.clock(activity.roundSeconds),
                                  WKTimeFormat.clock(activity.restSeconds))
