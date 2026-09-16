@@ -10,6 +10,7 @@ struct SetupView: View {
     @AppStorage(FreeWorkoutStore.roundSecondsKey) private var freeRoundSeconds = FreeWorkoutStore.defaultRoundSeconds
     @AppStorage(FreeWorkoutStore.restSecondsKey) private var freeRestSeconds = FreeWorkoutStore.defaultRestSeconds
     @AppStorage("rounds.dimOtherAudio") private var dimOtherAudio = true
+    @AppStorage("rounds.muteCues") private var muteCues = false
 
     @State private var running: RoundsActivity?
     @State private var showPresets = false
@@ -31,7 +32,7 @@ struct SetupView: View {
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(WKColor.bg)
         .fullScreenCover(item: $running) { activity in
-            RoundTimerView(activity: activity, dimOtherAudio: dimOtherAudio)
+            RoundTimerView(activity: activity, dimOtherAudio: dimOtherAudio, muteCues: muteCues)
         }
     }
 

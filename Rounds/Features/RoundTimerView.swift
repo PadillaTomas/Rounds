@@ -1,3 +1,4 @@
+import AVFoundation
 import SwiftUI
 import UIKit
 import UIWorkouts
@@ -10,15 +11,29 @@ struct RoundTimerView: View {
     let activity: RoundsActivity
 
     @State private var engine: RoundTimerEngine
+    /// The "Stop this workout?" confirmation.
+    @State private var confirmStop = false
+    /// True while we paused the engine ourselves to show that confirmation.
+    @State private var pausedForConfirm = false
+    /// Seconds left in the "get ready" countdown; the engine hasn't started yet
+    /// while this is > 0.
+    @State private var leadIn = Self.leadInSeconds
+    @State private var didStartEngine = false
+    @State private var leadInTimer: Timer?
     @Environment(\.dismiss) private var dismiss
 
-    init(activity: RoundsActivity, dimOtherAudio: Bool = true) {
+    /// A breather to set the phone down and get into stance before the first bell.
+    private static let leadInSeconds = 5
+
+    init(activity: RoundsActivity, dimOtherAudio: Bool = true, muteCues: Bool = false) {
         self.activity = activity
         _engine = State(wrappedValue: RoundTimerEngine(
             activity: activity,
-            cues: CuePlayer(dimsOtherAudio: dimOtherAudio)
+            cues: CuePlayer(dimsOtherAudio: dimOtherAudio, muted: muteCues)
         ))
     }
+
+    private var isCountingIn: Bool { !didStartEngine && leadIn > 0 }
 
     private var isFinished: Bool { engine.runState == .finished }
     private var wkPhase: WKPhase { engine.phase.wkPhase }
@@ -35,55 +50,133 @@ struct RoundTimerView: View {
     var body: some View {
         ZStack {
             WKColor.bg.ignoresSafeArea()
-            if isFinished {
+            if isCountingIn {
+                WKAmbientBackground(phase: .run)
+            } else if isFinished {
                 WKAmbientBackground(.done)
             } else {
                 WKAmbientBackground(phase: wkPhase)
             }
 
-            VStack(spacing: 0) {
-                header
-                    .padding(.horizontal, WKSpace.lg)
-                    .padding(.top, WKSpace.sm)
-
-                Spacer(minLength: WKSpace.lg)
-
-                WKTimerDial(
-                    fraction: engine.fraction,
-                    phase: wkPhase,
-                    caption: engine.phase.label,
-                    seconds: engine.remaining,
-                    label: engine.phase.label,   // "Round" / "Rest", not "Run" / "Walk"
-                    state: dialState
-                )
-                .frame(width: 300, height: 300)
-                .frame(maxWidth: .infinity)
-
-                Spacer(minLength: WKSpace.lg)
-
-                if !isFinished {
-                    upNext
-                        .padding(.horizontal, WKSpace.lg)
-                    if !trackSegments.isEmpty {
-                        WKSegmentedTrack(segments: trackSegments)
-                            .padding(.horizontal, WKSpace.lg)
-                            .padding(.top, WKSpace.sm)
-                            .padding(.bottom, WKSpace.lg)
-                    } else {
-                        Color.clear.frame(height: WKSpace.lg)
-                    }
-                }
+            if isCountingIn {
+                leadInContent
+            } else {
+                runningContent
             }
         }
         .safeAreaInset(edge: .bottom) { controls }
         .onAppear {
             UIApplication.shared.isIdleTimerDisabled = true
-            engine.start()
+            startLeadIn()
+        }
+        .onReceive(NotificationCenter.default.publisher(
+            for: AVAudioSession.interruptionNotification)) { note in
+            handleAudioInterruption(note)
         }
         .onDisappear {
             UIApplication.shared.isIdleTimerDisabled = false
-            engine.stop()
+            leadInTimer?.invalidate(); leadInTimer = nil
+            if didStartEngine { engine.stop() }
         }
+        .alert(Copy.Timer.stopTitle, isPresented: $confirmStop) {
+            Button(Copy.Timer.stopConfirm, role: .destructive) { engine.stop(); dismiss() }
+            Button(Copy.Timer.stopResume, role: .cancel) { resumeAfterConfirm() }
+        } message: {
+            Text(Copy.Timer.stopMessage)
+        }
+    }
+
+    @ViewBuilder private var runningContent: some View {
+        VStack(spacing: 0) {
+            header
+                .padding(.horizontal, WKSpace.lg)
+                .padding(.top, WKSpace.sm)
+
+            Spacer(minLength: WKSpace.lg)
+
+            WKTimerDial(
+                fraction: engine.fraction,
+                phase: wkPhase,
+                caption: engine.phase.label,
+                seconds: engine.remaining,
+                label: engine.phase.label,   // "Round" / "Rest", not "Run" / "Walk"
+                state: dialState
+            )
+            .frame(width: 300, height: 300)
+            .frame(maxWidth: .infinity)
+
+            Spacer(minLength: WKSpace.lg)
+
+            if !isFinished {
+                upNext
+                    .padding(.horizontal, WKSpace.lg)
+                if !trackSegments.isEmpty {
+                    WKSegmentedTrack(segments: trackSegments)
+                        .padding(.horizontal, WKSpace.lg)
+                        .padding(.top, WKSpace.sm)
+                        .padding(.bottom, WKSpace.lg)
+                } else {
+                    Color.clear.frame(height: WKSpace.lg)
+                }
+            }
+        }
+    }
+
+    // MARK: - Lead-in
+
+    private var leadInContent: some View {
+        VStack(spacing: WKSpace.md) {
+            WKLabelMono(Copy.Timer.getReady)
+            Text("\(leadIn)")
+                .wkFont(.metricL)
+                .foregroundStyle(WKColor.textPrimary)
+                .contentTransition(.numericText(countsDown: true))
+                .animation(.snappy, value: leadIn)
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+    }
+
+    private func startLeadIn() {
+        guard !didStartEngine, leadInTimer == nil else { return }
+        leadInTimer = Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { _ in
+            leadIn -= 1
+            if leadIn <= 0 { finishLeadIn() }
+        }
+    }
+
+    /// End the countdown and ring the first bell.
+    private func finishLeadIn() {
+        guard !didStartEngine else { return }
+        leadInTimer?.invalidate(); leadInTimer = nil
+        leadIn = 0
+        didStartEngine = true
+        engine.start()
+    }
+
+    // MARK: - Stop
+
+    private func requestStop() {
+        if isCountingIn { dismiss(); return }
+        if engine.runState == .running {
+            engine.togglePause()
+            pausedForConfirm = true
+        }
+        confirmStop = true
+    }
+
+    private func resumeAfterConfirm() {
+        if pausedForConfirm, engine.runState == .paused { engine.togglePause() }
+        pausedForConfirm = false
+    }
+
+    /// A phone call (or any audio interruption) pauses the workout. It stays
+    /// paused when the call ends — the fighter taps Resume when they're back.
+    private func handleAudioInterruption(_ note: Notification) {
+        guard didStartEngine, engine.runState == .running,
+              let raw = note.userInfo?[AVAudioSessionInterruptionTypeKey] as? UInt,
+              AVAudioSession.InterruptionType(rawValue: raw) == .began
+        else { return }
+        engine.togglePause()
     }
 
     // MARK: - Header
@@ -148,7 +241,11 @@ struct RoundTimerView: View {
     // MARK: - Controls
 
     @ViewBuilder private var controls: some View {
-        if isFinished {
+        if isCountingIn {
+            WKFooterActions {
+                WKButton(Copy.Timer.stop, style: .secondary) { requestStop() }
+            }
+        } else if isFinished {
             WKFooterActions {
                 WKButton(Copy.Timer.done, style: .primary) { dismiss() }
             }
@@ -159,8 +256,7 @@ struct RoundTimerView: View {
                     engine.togglePause()
                 }
                 WKButton(Copy.Timer.stop, style: .secondary) {
-                    engine.stop()
-                    dismiss()
+                    requestStop()
                 }
             }
         }

@@ -8,10 +8,18 @@ settings:
   base:
     SWIFT_VERSION: "5.9"
     CODE_SIGN_STYLE: Automatic
+    # Xcode "recommended settings" (new-project template defaults) — adopted so the
+    # generated project stays on Apple's current baseline. Sandboxing enforces
+    # input/output declarations on any future run-script phase; symbol generation
+    # makes String Catalog keys available as typed accessors.
+    ENABLE_USER_SCRIPT_SANDBOXING: YES
+    STRING_CATALOG_GENERATE_SYMBOLS: YES
     # Marketing version (App Store) and build number. Bump MARKETING_VERSION per
     # release; bump CURRENT_PROJECT_VERSION for every upload of the same version.
-    MARKETING_VERSION: "1.0.0"
-    CURRENT_PROJECT_VERSION: "2"
+    # 1.1.0 — a free UI-refresh + fixes update; the paid 2.0 line (paywall,
+    # history, calendar, health, share) stays on develop, not in this build.
+    MARKETING_VERSION: "1.1.0"
+    CURRENT_PROJECT_VERSION: "1"
     # DEVELOPMENT_TEAM is intentionally not set. CODE_SIGN_STYLE = Automatic
     # resolves the one team on the account; Xcode stores the pick in the
     # (gitignored) generated project.
@@ -20,9 +28,8 @@ packages:
     # Pinned exactly here (not via a committed Package.resolved — xcodebuild keeps
     # rewriting that file). Bump this string to adopt a new UIWorkouts tag. During
     # UIWorkouts co-development swap to `path: ../UI-Workouts` for live edits.
-    # Local path while adopting the UIWorkouts refactor on feature/new-ui —
-    # flip back to url + exactVersion at the next UIWorkouts release tag.
-    path: ../UI-Workouts
+    url: https://github.com/PadillaTomas/UI-Workouts.git
+    exactVersion: "1.0.0"
 targets:
   Rounds:
     type: application

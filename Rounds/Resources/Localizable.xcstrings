@@ -1,6 +1,9 @@
 {
   "sourceLanguage" : "en",
   "strings" : {
+    "%@" : {
+
+    },
     "presets.fullCard.detail" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -84,7 +87,29 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Cues always play alongside your music, even on silent. When on, your music is lowered for the whole workout so every bell and clap stands out."
+            "value" : "When on, your music dips just for the moment a bell or clap sounds, then comes straight back."
+          }
+        }
+      }
+    },
+    "settings.muteCues" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Silent workout"
+          }
+        }
+      }
+    },
+    "settings.muteCuesCaption" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No bell or clap — just the vibration for every round and warning. For a crowded gym or a quiet room."
           }
         }
       }
@@ -96,17 +121,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Save your last workout"
-          }
-        }
-      }
-    },
-    "settings.saveWorkoutCaption" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "When on, your setup — rounds, round length and rest — is remembered for next time. When off, it opens at 12 rounds of 3:00 with 1:00 rest."
           }
         }
       }
@@ -276,6 +290,17 @@
         }
       }
     },
+    "timer.getReady" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Get ready"
+          }
+        }
+      }
+    },
     "timer.lastRound" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -288,6 +313,7 @@
       }
     },
     "timer.nextUp" : {
+      "comment" : "%1$@ next phase name, %2$@ its length m:ss",
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
@@ -296,8 +322,7 @@
             "value" : "Next · %1$@ %2$@"
           }
         }
-      },
-      "comment" : "%1$@ next phase name, %2$@ its length m:ss"
+      }
     },
     "timer.pause" : {
       "extractionState" : "manual",
@@ -378,7 +403,52 @@
         }
       }
     },
+    "timer.stop.confirm" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Stop"
+          }
+        }
+      }
+    },
+    "timer.stop.message" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The workout ends here."
+          }
+        }
+      }
+    },
+    "timer.stop.resume" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Keep going"
+          }
+        }
+      }
+    },
+    "timer.stop.title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Stop this workout?"
+          }
+        }
+      }
+    },
     "timer.tally" : {
+      "comment" : "%1$lld current round, %2$lld total. Timer pill.",
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
@@ -387,8 +457,7 @@
             "value" : "%1$lld of %2$lld"
           }
         }
-      },
-      "comment" : "%1$lld current round, %2$lld total. Timer pill."
+      }
     }
   },
   "version" : "1.0"
