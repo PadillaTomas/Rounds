@@ -35,6 +35,22 @@ final class RoundTimerEngineTests: XCTestCase {
         XCTAssertEqual(engine.remaining, 10)
     }
 
+    func testPrepareBeginsTheSessionOnceBeforeStart() {
+        let (engine, spy, _, _) = makeEngine()
+        engine.prepare()
+        engine.prepare()
+        XCTAssertEqual(spy.log, ["begin"])
+        engine.start()
+        XCTAssertEqual(spy.log, ["begin", "start"])
+    }
+
+    func testStopBeforeStartReleasesThePreparedSession() {
+        let (engine, spy, _, _) = makeEngine()
+        engine.prepare()
+        engine.stop()
+        XCTAssertEqual(spy.log, ["begin", "didEnd"])
+    }
+
     func testRunsThroughEveryBoundaryInOrder() {
         let (engine, spy, advance, tick) = makeEngine()
         engine.start()

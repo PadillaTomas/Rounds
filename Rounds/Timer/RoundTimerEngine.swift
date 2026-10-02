@@ -25,6 +25,7 @@ final class RoundTimerEngine {
     @ObservationIgnored private var pauseDate: Date?
     @ObservationIgnored private var lastCrossed = -1
     @ObservationIgnored private var ticker: Timer?
+    @ObservationIgnored private var prepared = false
 
     init(activity: RoundsActivity,
          cues: CuePlaying = CuePlayer(),
@@ -50,9 +51,16 @@ final class RoundTimerEngine {
 
     // MARK: - Lifecycle
 
+    /// Begins the cue session (audio keep-alive). Idempotent.
+    func prepare() {
+        guard !prepared, runState != .finished else { return }
+        prepared = true
+        cues.sessionDidBegin()
+    }
+
     func start() {
         guard runState != .finished else { return }
-        cues.sessionDidBegin()
+        prepare()
         startDate = now()
         advance()               // fires the first bell, sets round 1 / work
         startTicker()

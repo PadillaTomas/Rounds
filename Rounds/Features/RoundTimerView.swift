@@ -67,6 +67,7 @@ struct RoundTimerView: View {
         .safeAreaInset(edge: .bottom) { controls }
         .onAppear {
             UIApplication.shared.isIdleTimerDisabled = true
+            engine.prepare()
             startLeadIn()
         }
         .onReceive(NotificationCenter.default.publisher(
@@ -76,7 +77,7 @@ struct RoundTimerView: View {
         .onDisappear {
             UIApplication.shared.isIdleTimerDisabled = false
             leadInTimer?.invalidate(); leadInTimer = nil
-            if didStartEngine { engine.stop() }
+            engine.stop()
         }
         .alert(Copy.Timer.stopTitle, isPresented: $confirmStop) {
             Button(Copy.Timer.stopConfirm, role: .destructive) { engine.stop(); dismiss() }
@@ -138,9 +139,10 @@ struct RoundTimerView: View {
 
     private func startLeadIn() {
         guard !didStartEngine, leadInTimer == nil else { return }
-        leadInTimer = Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { _ in
-            leadIn -= 1
-            if leadIn <= 0 { finishLeadIn() }
+        let end = Date().addingTimeInterval(TimeInterval(Self.leadInSeconds))
+        leadInTimer = Timer.scheduledTimer(withTimeInterval: 0.2, repeats: true) { _ in
+            let left = Int(end.timeIntervalSinceNow.rounded(.up))
+            if left <= 0 { finishLeadIn() } else if left != leadIn { leadIn = left }
         }
     }
 
