@@ -51,6 +51,51 @@ final class RoundTimerEngineTests: XCTestCase {
         XCTAssertEqual(spy.log, ["begin", "didEnd"])
     }
 
+    func testSkipJumpsToNextPhaseFiringOnlyTheBoundaryCue() {
+        let (engine, spy, advance, tick) = makeEngine(
+            RoundsActivity(rounds: 2, configuredRoundSeconds: 30, configuredRestSeconds: 5))
+        engine.start()
+        tick(3); advance()
+
+        engine.skip()
+        XCTAssertEqual(engine.phase, .rest)
+        XCTAssertEqual(engine.remaining, 5)
+        XCTAssertEqual(spy.log, ["begin", "start", "end"])
+
+        engine.skip()
+        XCTAssertEqual(engine.phase, .work)
+        XCTAssertEqual(engine.round, 2)
+        XCTAssertEqual(spy.log, ["begin", "start", "end", "start"])
+    }
+
+    func testSkipIsUnavailableOnTheLastWorkPeriod() {
+        let (engine, _, _, _) = makeEngine(
+            RoundsActivity(rounds: 1, configuredRoundSeconds: 10, configuredRestSeconds: 5))
+        engine.start()
+        XCTAssertFalse(engine.canSkip)
+    }
+
+    func testSkipWhilePausedStaysPausedAndRingsOnResume() {
+        let (engine, spy, advance, tick) = makeEngine(
+            RoundsActivity(rounds: 2, configuredRoundSeconds: 30, configuredRestSeconds: 5))
+        engine.start()
+        tick(3); advance()
+        engine.togglePause()
+
+        engine.skip()
+        XCTAssertEqual(engine.runState, .paused)
+        XCTAssertEqual(engine.phase, .rest)
+        XCTAssertEqual(engine.remaining, 5)
+        XCTAssertEqual(spy.log, ["begin", "start"])
+
+        tick(7)
+        engine.togglePause()
+        advance()
+        XCTAssertEqual(engine.phase, .rest)
+        XCTAssertEqual(engine.remaining, 5)
+        XCTAssertEqual(spy.log, ["begin", "start", "end"])
+    }
+
     func testRunsThroughEveryBoundaryInOrder() {
         let (engine, spy, advance, tick) = makeEngine()
         engine.start()

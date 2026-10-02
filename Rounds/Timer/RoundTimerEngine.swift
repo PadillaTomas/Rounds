@@ -84,6 +84,23 @@ final class RoundTimerEngine {
         }
     }
 
+    var canSkip: Bool {
+        guard runState != .finished else { return false }
+        if let total = totalRounds, round >= total, phase == .work { return false }
+        return true
+    }
+
+    /// Jumps to the start of the next phase. Running: its bell rings now.
+    /// Paused: stays paused, and the bell rings on resume.
+    func skip() {
+        guard canSkip else { return }
+        let elapsed = elapsedSeconds()
+        let boundary = elapsed + sequence.tick(atElapsed: elapsed).remaining
+        startDate = startDate.addingTimeInterval(-Double(boundary - elapsed))
+        lastCrossed = max(lastCrossed, boundary - 1)
+        if runState == .running { advance() } else { publish(boundary) }
+    }
+
     /// Ends the workout early. Idempotent.
     func stop() { finish() }
 
@@ -114,6 +131,10 @@ final class RoundTimerEngine {
             lastCrossed = elapsed
         }
 
+        publish(elapsed)
+    }
+
+    private func publish(_ elapsed: Int) {
         let tick = sequence.tick(atElapsed: elapsed)
         round = tick.round
         phase = tick.phase

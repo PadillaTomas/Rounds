@@ -50,6 +50,14 @@ enum Copy {
     enum Timer {
         static var pause: String { t("timer.pause", "Pause") }
         static var resume: String { t("timer.resume", "Resume") }
+        static var skip: String { t("timer.skip", "Skip") }
+        static var skipTitle: String { t("timer.skip.title", "Skip ahead?") }
+        static var skipMessage: String {
+            t("timer.skip.message",
+              "Your workout is paused. You'll jump to the next interval and stay paused until you tap Resume.")
+        }
+        static var skipConfirm: String { t("timer.skip.confirm", "Skip") }
+        static var skipCancel: String { t("timer.skip.cancel", "Not now") }
         static var stop: String { t("timer.stop", "Stop") }
         static var done: String { t("timer.done", "Done") }
         static var work: String { t("timer.phase.work", "Round") }
@@ -74,6 +82,10 @@ enum Copy {
 
         static var stopTitle: String { t("timer.stop.title", "Stop this workout?") }
         static var stopMessage: String { t("timer.stop.message", "The workout ends here.") }
+        static var stopMessagePaused: String {
+            t("timer.stop.messagePaused", "Your workout is paused. Stopping ends it here.")
+        }
+        static var stopStay: String { t("timer.stop.stay", "Stay paused") }
         static var stopConfirm: String { t("timer.stop.confirm", "Stop") }
         static var stopResume: String { t("timer.stop.resume", "Keep going") }
     }

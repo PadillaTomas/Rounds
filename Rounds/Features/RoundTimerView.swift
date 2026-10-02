@@ -13,6 +13,8 @@ struct RoundTimerView: View {
     @State private var engine: RoundTimerEngine
     /// The "Stop this workout?" confirmation.
     @State private var confirmStop = false
+    /// The "Skip ahead?" confirmation, shown only while paused.
+    @State private var confirmSkip = false
     /// True while we paused the engine ourselves to show that confirmation.
     @State private var pausedForConfirm = false
     /// Seconds left in the "get ready" countdown; the engine hasn't started yet
@@ -36,6 +38,7 @@ struct RoundTimerView: View {
     private var isCountingIn: Bool { !didStartEngine && leadIn > 0 }
 
     private var isFinished: Bool { engine.runState == .finished }
+    private var isShownPaused: Bool { engine.runState == .paused && !pausedForConfirm }
     private var wkPhase: WKPhase { engine.phase.wkPhase }
     private var pillTone: WKPill.Tone { engine.phase == .work ? .run : .walk }
 
@@ -81,9 +84,16 @@ struct RoundTimerView: View {
         }
         .alert(Copy.Timer.stopTitle, isPresented: $confirmStop) {
             Button(Copy.Timer.stopConfirm, role: .destructive) { engine.stop(); dismiss() }
-            Button(Copy.Timer.stopResume, role: .cancel) { resumeAfterConfirm() }
+            Button(isShownPaused ? Copy.Timer.stopStay : Copy.Timer.stopResume,
+                   role: .cancel) { resumeAfterConfirm() }
         } message: {
-            Text(Copy.Timer.stopMessage)
+            Text(isShownPaused ? Copy.Timer.stopMessagePaused : Copy.Timer.stopMessage)
+        }
+        .alert(Copy.Timer.skipTitle, isPresented: $confirmSkip) {
+            Button(Copy.Timer.skipConfirm) { engine.skip() }
+            Button(Copy.Timer.skipCancel, role: .cancel) {}
+        } message: {
+            Text(Copy.Timer.skipMessage)
         }
     }
 
@@ -164,6 +174,10 @@ struct RoundTimerView: View {
             pausedForConfirm = true
         }
         confirmStop = true
+    }
+
+    private func requestSkip() {
+        if engine.runState == .paused { confirmSkip = true } else { engine.skip() }
     }
 
     private func resumeAfterConfirm() {
@@ -253,14 +267,19 @@ struct RoundTimerView: View {
             }
         } else {
             WKFooterActions {
-                WKButton(engine.runState == .paused ? Copy.Timer.resume : Copy.Timer.pause,
+                WKButton(isShownPaused ? Copy.Timer.resume : Copy.Timer.pause,
                          style: .primary) {
                     engine.togglePause()
                 }
-                WKButton(Copy.Timer.stop, style: .secondary) {
-                    requestStop()
+                HStack(spacing: WKSpace.md) {
+                    WKButton(Copy.Timer.skip, style: .secondary) { requestSkip() }
+                        .disabled(!engine.canSkip)
+                    WKButton(Copy.Timer.stop, style: .secondary) {
+                        requestStop()
+                    }
                 }
             }
+            .disabled(confirmStop || confirmSkip)
         }
     }
 }
