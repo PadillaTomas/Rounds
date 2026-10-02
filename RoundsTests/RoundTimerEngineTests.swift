@@ -53,6 +53,37 @@ final class RoundTimerEngineTests: XCTestCase {
         XCTAssertEqual(spy.log, ["begin", "didEnd"])
     }
 
+    func testOnChangeFiresOnPhaseAndRunStateChangesNotEveryTick() {
+        let (engine, _, advance, tick) = makeEngine(
+            RoundsActivity(rounds: 2, configuredRoundSeconds: 30, configuredRestSeconds: 5))
+        var changes = 0
+        engine.onChange = { changes += 1 }
+
+        engine.start()
+        XCTAssertEqual(changes, 1)
+        tick(1); advance(); tick(1); advance()
+        XCTAssertEqual(changes, 1)
+
+        engine.togglePause()
+        XCTAssertEqual(changes, 2)
+        engine.skip()                            // paused skip: work → rest
+        XCTAssertEqual(changes, 3)
+        engine.togglePause()
+        XCTAssertEqual(changes, 4)
+    }
+
+    func testPhaseEndTracksTheBoundaryAndFreezesWhilePaused() {
+        let (engine, _, _, tick) = makeEngine(
+            RoundsActivity(rounds: 2, configuredRoundSeconds: 30, configuredRestSeconds: 5))
+        engine.start()
+        let start = engine.phaseEnd
+        XCTAssertEqual(start.timeIntervalSince1970, 1_030, accuracy: 0.001)
+
+        tick(4)
+        engine.togglePause()
+        XCTAssertEqual(engine.phaseEnd.timeIntervalSince(engine.pausedAt!), Double(engine.remaining), accuracy: 0.001)
+    }
+
     func testCountdownFiresThreeTwoOneAndNotForSkippedSeconds() {
         let (engine, spy, advance, tick) = makeEngine(
             RoundsActivity(rounds: 2, configuredRoundSeconds: 30, configuredRestSeconds: 5))

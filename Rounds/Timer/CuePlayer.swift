@@ -158,7 +158,11 @@ final class CuePlayer: NSObject, CuePlaying, AVAudioPlayerDelegate {
 
     func roundStarted()     { play(sounds.start); Haptics.buzz(0.45) }
     func roundEnded()       { play(sounds.end); Haptics.buzz(0.55) }
-    func tenSecondWarning() { play(sounds.warn); Haptics.tap(times: 3) }
+    func tenSecondWarning() {
+        guard sounds.warn != nil else { return }
+        play(sounds.warn)
+        Haptics.tap(times: 3)
+    }
     func sessionFinished()  { play(sounds.final); Haptics.buzz(0.6, times: 3) }
 
     func countdown(_ secondsLeft: Int) {

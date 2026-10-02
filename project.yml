@@ -40,6 +40,7 @@ targets:
           - project.yml
     dependencies:
       - package: UIWorkouts
+      - target: RoundsWidgets
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.padillatomas.Rounds
@@ -65,6 +66,28 @@ targets:
         # background so the round bells still fire — CuePlayer plays a silent
         # keep-alive loop for the duration of the workout.
         UIBackgroundModes: [audio]
+        # Lock Screen / Dynamic Island timer while a workout runs.
+        NSSupportsLiveActivities: true
+  RoundsWidgets:
+    type: app-extension
+    platform: iOS
+    sources:
+      - path: RoundsWidgets
+      - path: Rounds/LiveActivity
+    dependencies:
+      - package: UIWorkouts
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.padillatomas.Rounds.Widgets
+        TARGETED_DEVICE_FAMILY: "1"
+    info:
+      path: Generated-Widgets-Info.plist
+      properties:
+        CFBundleDisplayName: Rounds
+        CFBundleShortVersionString: $(MARKETING_VERSION)
+        CFBundleVersion: $(CURRENT_PROJECT_VERSION)
+        NSExtension:
+          NSExtensionPointIdentifier: com.apple.widgetkit-extension
   RoundsTests:
     type: bundle.unit-test
     platform: iOS

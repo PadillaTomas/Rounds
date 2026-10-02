@@ -22,6 +22,7 @@ struct RoundTimerView: View {
     @State private var leadIn = Self.leadInSeconds
     @State private var didStartEngine = false
     @State private var leadInTimer: Timer?
+    @State private var liveActivity = WorkoutLiveActivity()
     @Environment(\.dismiss) private var dismiss
 
     /// A breather to set the phone down and get into stance before the first bell.
@@ -72,6 +73,7 @@ struct RoundTimerView: View {
         .onAppear {
             UIApplication.shared.isIdleTimerDisabled = true
             engine.prepare()
+            connectLiveActivity()
             startLeadIn()
         }
         .onReceive(NotificationCenter.default.publisher(
@@ -81,6 +83,9 @@ struct RoundTimerView: View {
         .onDisappear {
             UIApplication.shared.isIdleTimerDisabled = false
             leadInTimer?.invalidate(); leadInTimer = nil
+            engine.onChange = nil
+            WorkoutRemote.shared.handler = nil
+            liveActivity.end()
             engine.stop()
         }
         .alert(Copy.Timer.stopTitle, isPresented: $confirmStop) {
@@ -151,9 +156,23 @@ struct RoundTimerView: View {
     private func startLeadIn() {
         guard !didStartEngine, leadInTimer == nil else { return }
         let end = Date().addingTimeInterval(TimeInterval(Self.leadInSeconds))
+        liveActivity.start(WorkoutLiveActivity.leadIn(until: end, seconds: Self.leadInSeconds))
         leadInTimer = Timer.scheduledTimer(withTimeInterval: 0.2, repeats: true) { _ in
             let left = Int(end.timeIntervalSinceNow.rounded(.up))
             if left <= 0 { finishLeadIn() } else if left != leadIn { leadIn = left }
+        }
+    }
+
+    private func connectLiveActivity() {
+        let engine = engine, live = liveActivity
+        engine.onChange = { live.update(WorkoutLiveActivity.running(engine)) }
+        WorkoutRemote.shared.handler = { [self] command, revision in
+            guard didStartEngine, revision == live.revision else { return }
+            switch command {
+            case .togglePause: engine.togglePause()
+            case .skip:        engine.skip()
+            }
+            await live.flush()
         }
     }
 
