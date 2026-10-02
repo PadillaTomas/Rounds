@@ -13,6 +13,8 @@ struct RoundTimerView: View {
     @State private var engine: RoundTimerEngine
     /// The "Stop this workout?" confirmation.
     @State private var confirmStop = false
+    /// The "Skip ahead?" confirmation, shown only while paused.
+    @State private var confirmSkip = false
     /// True while we paused the engine ourselves to show that confirmation.
     @State private var pausedForConfirm = false
     /// Seconds left in the "get ready" countdown; the engine hasn't started yet
@@ -20,22 +22,25 @@ struct RoundTimerView: View {
     @State private var leadIn = Self.leadInSeconds
     @State private var didStartEngine = false
     @State private var leadInTimer: Timer?
+    @State private var liveActivity = WorkoutLiveActivity()
     @Environment(\.dismiss) private var dismiss
 
     /// A breather to set the phone down and get into stance before the first bell.
     private static let leadInSeconds = 5
 
-    init(activity: RoundsActivity, dimOtherAudio: Bool = true, muteCues: Bool = false) {
+    init(activity: RoundsActivity, dimOtherAudio: Bool = true, muteCues: Bool = false,
+         palette: SoundPalette = .boxing) {
         self.activity = activity
         _engine = State(wrappedValue: RoundTimerEngine(
             activity: activity,
-            cues: CuePlayer(dimsOtherAudio: dimOtherAudio, muted: muteCues)
+            cues: CuePlayer(dimsOtherAudio: dimOtherAudio, muted: muteCues, palette: palette)
         ))
     }
 
     private var isCountingIn: Bool { !didStartEngine && leadIn > 0 }
 
     private var isFinished: Bool { engine.runState == .finished }
+    private var isShownPaused: Bool { engine.runState == .paused && !pausedForConfirm }
     private var wkPhase: WKPhase { engine.phase.wkPhase }
     private var pillTone: WKPill.Tone { engine.phase == .work ? .run : .walk }
 
@@ -67,6 +72,8 @@ struct RoundTimerView: View {
         .safeAreaInset(edge: .bottom) { controls }
         .onAppear {
             UIApplication.shared.isIdleTimerDisabled = true
+            engine.prepare()
+            connectLiveActivity()
             startLeadIn()
         }
         .onReceive(NotificationCenter.default.publisher(
@@ -76,13 +83,23 @@ struct RoundTimerView: View {
         .onDisappear {
             UIApplication.shared.isIdleTimerDisabled = false
             leadInTimer?.invalidate(); leadInTimer = nil
-            if didStartEngine { engine.stop() }
+            engine.onChange = nil
+            WorkoutRemote.shared.handler = nil
+            liveActivity.end()
+            engine.stop()
         }
         .alert(Copy.Timer.stopTitle, isPresented: $confirmStop) {
             Button(Copy.Timer.stopConfirm, role: .destructive) { engine.stop(); dismiss() }
-            Button(Copy.Timer.stopResume, role: .cancel) { resumeAfterConfirm() }
+            Button(isShownPaused ? Copy.Timer.stopStay : Copy.Timer.stopResume,
+                   role: .cancel) { resumeAfterConfirm() }
         } message: {
-            Text(Copy.Timer.stopMessage)
+            Text(isShownPaused ? Copy.Timer.stopMessagePaused : Copy.Timer.stopMessage)
+        }
+        .alert(Copy.Timer.skipTitle, isPresented: $confirmSkip) {
+            Button(Copy.Timer.skipConfirm) { engine.skip() }
+            Button(Copy.Timer.skipCancel, role: .cancel) {}
+        } message: {
+            Text(Copy.Timer.skipMessage)
         }
     }
 
@@ -138,9 +155,24 @@ struct RoundTimerView: View {
 
     private func startLeadIn() {
         guard !didStartEngine, leadInTimer == nil else { return }
-        leadInTimer = Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { _ in
-            leadIn -= 1
-            if leadIn <= 0 { finishLeadIn() }
+        let end = Date().addingTimeInterval(TimeInterval(Self.leadInSeconds))
+        liveActivity.start(WorkoutLiveActivity.leadIn(until: end, seconds: Self.leadInSeconds))
+        leadInTimer = Timer.scheduledTimer(withTimeInterval: 0.2, repeats: true) { _ in
+            let left = Int(end.timeIntervalSinceNow.rounded(.up))
+            if left <= 0 { finishLeadIn() } else if left != leadIn { leadIn = left }
+        }
+    }
+
+    private func connectLiveActivity() {
+        let engine = engine, live = liveActivity
+        engine.onChange = { live.update(WorkoutLiveActivity.running(engine)) }
+        WorkoutRemote.shared.handler = { [self] command, revision in
+            guard didStartEngine, revision == live.revision else { return }
+            switch command {
+            case .togglePause: engine.togglePause()
+            case .skip:        engine.skip()
+            }
+            await live.flush()
         }
     }
 
@@ -162,6 +194,10 @@ struct RoundTimerView: View {
             pausedForConfirm = true
         }
         confirmStop = true
+    }
+
+    private func requestSkip() {
+        if engine.runState == .paused { confirmSkip = true } else { engine.skip() }
     }
 
     private func resumeAfterConfirm() {
@@ -251,14 +287,19 @@ struct RoundTimerView: View {
             }
         } else {
             WKFooterActions {
-                WKButton(engine.runState == .paused ? Copy.Timer.resume : Copy.Timer.pause,
+                WKButton(isShownPaused ? Copy.Timer.resume : Copy.Timer.pause,
                          style: .primary) {
                     engine.togglePause()
                 }
-                WKButton(Copy.Timer.stop, style: .secondary) {
-                    requestStop()
+                HStack(spacing: WKSpace.md) {
+                    WKButton(Copy.Timer.skip, style: .secondary) { requestSkip() }
+                        .disabled(!engine.canSkip)
+                    WKButton(Copy.Timer.stop, style: .secondary) {
+                        requestStop()
+                    }
                 }
             }
+            .disabled(confirmStop || confirmSkip)
         }
     }
 }

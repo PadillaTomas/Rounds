@@ -25,6 +25,17 @@ final class RoundTimerEngine {
     @ObservationIgnored private var pauseDate: Date?
     @ObservationIgnored private var lastCrossed = -1
     @ObservationIgnored private var ticker: Timer?
+    @ObservationIgnored private var prepared = false
+    @ObservationIgnored private var lastSignature: Signature?
+
+    private struct Signature: Equatable {
+        var round: Int
+        var phase: RoundPhase
+        var runState: RunState
+    }
+
+    /// Fires when the round, phase or run state changes — not on every tick.
+    @ObservationIgnored var onChange: (() -> Void)?
 
     init(activity: RoundsActivity,
          cues: CuePlaying = CuePlayer(),
@@ -36,9 +47,16 @@ final class RoundTimerEngine {
     }
 
     var activity: RoundsActivity { sequence.activity }
+    var pausedAt: Date? { pauseDate }
+
+    /// When the current phase ends (frozen relative to the pause while paused).
+    var phaseEnd: Date {
+        if let pauseDate { return pauseDate.addingTimeInterval(Double(remaining)) }
+        return startDate.addingTimeInterval(Double(elapsedSeconds() + remaining))
+    }
     var totalRounds: Int? { sequence.totalRounds }
 
-    private var phaseDuration: Int {
+    var phaseDuration: Int {
         phase == .work ? sequence.roundSeconds : sequence.restSeconds
     }
 
@@ -50,9 +68,16 @@ final class RoundTimerEngine {
 
     // MARK: - Lifecycle
 
+    /// Begins the cue session (audio keep-alive). Idempotent.
+    func prepare() {
+        guard !prepared, runState != .finished else { return }
+        prepared = true
+        cues.sessionDidBegin()
+    }
+
     func start() {
         guard runState != .finished else { return }
-        cues.sessionDidBegin()
+        prepare()
         startDate = now()
         advance()               // fires the first bell, sets round 1 / work
         startTicker()
@@ -64,6 +89,7 @@ final class RoundTimerEngine {
             runState = .paused
             pauseDate = now()
             ticker?.invalidate(); ticker = nil
+            notifyIfChanged()
         case .paused:
             if let pauseDate {
                 startDate += now().timeIntervalSince(pauseDate)
@@ -71,9 +97,27 @@ final class RoundTimerEngine {
             pauseDate = nil
             runState = .running
             startTicker()
+            notifyIfChanged()
         case .finished:
             break
         }
+    }
+
+    var canSkip: Bool {
+        guard runState != .finished else { return false }
+        if let total = totalRounds, round >= total, phase == .work { return false }
+        return true
+    }
+
+    /// Jumps to the start of the next phase. Running: its bell rings now.
+    /// Paused: stays paused, and the bell rings on resume.
+    func skip() {
+        guard canSkip else { return }
+        let elapsed = elapsedSeconds()
+        let boundary = elapsed + sequence.tick(atElapsed: elapsed).remaining
+        startDate = startDate.addingTimeInterval(-Double(boundary - elapsed))
+        lastCrossed = max(lastCrossed, boundary - 1)
+        if runState == .running { advance() } else { publish(boundary) }
     }
 
     /// Ends the workout early. Idempotent.
@@ -106,11 +150,22 @@ final class RoundTimerEngine {
             lastCrossed = elapsed
         }
 
+        publish(elapsed)
+    }
+
+    private func publish(_ elapsed: Int) {
         let tick = sequence.tick(atElapsed: elapsed)
         round = tick.round
         phase = tick.phase
         remaining = tick.remaining
-        if tick.isFinished { finish() }
+        if tick.isFinished { finish() } else { notifyIfChanged() }
+    }
+
+    private func notifyIfChanged() {
+        let signature = Signature(round: round, phase: phase, runState: runState)
+        guard signature != lastSignature else { return }
+        lastSignature = signature
+        onChange?()
     }
 
     private func fire(_ cue: Cue?) {
@@ -119,6 +174,7 @@ final class RoundTimerEngine {
         case .roundEnd:         cues.roundEnded()
         case .tenSecondWarning: cues.tenSecondWarning()
         case .fightEnd:         cues.sessionFinished()
+        case .countdown(let n): cues.countdown(n)
         case nil:               break
         }
     }
@@ -129,5 +185,6 @@ final class RoundTimerEngine {
         ticker?.invalidate(); ticker = nil
         remaining = 0
         cues.sessionDidEnd()
+        notifyIfChanged()
     }
 }

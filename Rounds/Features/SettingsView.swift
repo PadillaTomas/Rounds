@@ -6,6 +6,7 @@ struct SettingsView: View {
     @AppStorage("rounds.theme") private var theme: WKAppearance = .dark
     @AppStorage("rounds.dimOtherAudio") private var dimOtherAudio = true
     @AppStorage("rounds.muteCues") private var muteCues = false
+    @AppStorage(SoundPalette.storageKey) private var palette: SoundPalette = .boxing
     @AppStorage(FreeWorkoutStore.saveKey) private var saveWorkout = true
 
     var body: some View {
@@ -45,6 +46,18 @@ struct SettingsView: View {
                             .disabled(muteCues)
                             .opacity(muteCues ? 0.4 : 1)
                         Text(Copy.Settings.dimOtherAudioCaption)
+                            .wkFont(.caption)
+                            .foregroundStyle(WKColor.textTertiary)
+                            .fixedSize(horizontal: false, vertical: true)
+
+                        WKSegmentedToggle(selection: $palette, options: [
+                            (.boxing, Copy.Settings.paletteBoxing),
+                            (.countdown, Copy.Settings.paletteCountdown),
+                        ])
+                        .disabled(muteCues)
+                        .opacity(muteCues ? 0.4 : 1)
+                        Text(palette == .boxing ? Copy.Settings.paletteBoxingCaption
+                                                : Copy.Settings.paletteCountdownCaption)
                             .wkFont(.caption)
                             .foregroundStyle(WKColor.textTertiary)
                             .fixedSize(horizontal: false, vertical: true)

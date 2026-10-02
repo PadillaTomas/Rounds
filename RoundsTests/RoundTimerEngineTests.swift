@@ -4,6 +4,8 @@ import XCTest
 /// Records every cue the engine fires, in order.
 private final class CueSpy: CuePlaying {
     private(set) var log: [String] = []
+    private(set) var countdowns: [Int] = []
+    func countdown(_ secondsLeft: Int) { countdowns.append(secondsLeft) }
     func roundStarted()     { log.append("start") }
     func roundEnded()       { log.append("end") }
     func tenSecondWarning() { log.append("warn") }
@@ -33,6 +35,109 @@ final class RoundTimerEngineTests: XCTestCase {
         XCTAssertEqual(engine.round, 1)
         XCTAssertEqual(engine.phase, .work)
         XCTAssertEqual(engine.remaining, 10)
+    }
+
+    func testPrepareBeginsTheSessionOnceBeforeStart() {
+        let (engine, spy, _, _) = makeEngine()
+        engine.prepare()
+        engine.prepare()
+        XCTAssertEqual(spy.log, ["begin"])
+        engine.start()
+        XCTAssertEqual(spy.log, ["begin", "start"])
+    }
+
+    func testStopBeforeStartReleasesThePreparedSession() {
+        let (engine, spy, _, _) = makeEngine()
+        engine.prepare()
+        engine.stop()
+        XCTAssertEqual(spy.log, ["begin", "didEnd"])
+    }
+
+    func testOnChangeFiresOnPhaseAndRunStateChangesNotEveryTick() {
+        let (engine, _, advance, tick) = makeEngine(
+            RoundsActivity(rounds: 2, configuredRoundSeconds: 30, configuredRestSeconds: 5))
+        var changes = 0
+        engine.onChange = { changes += 1 }
+
+        engine.start()
+        XCTAssertEqual(changes, 1)
+        tick(1); advance(); tick(1); advance()
+        XCTAssertEqual(changes, 1)
+
+        engine.togglePause()
+        XCTAssertEqual(changes, 2)
+        engine.skip()                            // paused skip: work → rest
+        XCTAssertEqual(changes, 3)
+        engine.togglePause()
+        XCTAssertEqual(changes, 4)
+    }
+
+    func testPhaseEndTracksTheBoundaryAndFreezesWhilePaused() {
+        let (engine, _, _, tick) = makeEngine(
+            RoundsActivity(rounds: 2, configuredRoundSeconds: 30, configuredRestSeconds: 5))
+        engine.start()
+        let start = engine.phaseEnd
+        XCTAssertEqual(start.timeIntervalSince1970, 1_030, accuracy: 0.001)
+
+        tick(4)
+        engine.togglePause()
+        XCTAssertEqual(engine.phaseEnd.timeIntervalSince(engine.pausedAt!), Double(engine.remaining), accuracy: 0.001)
+    }
+
+    func testCountdownFiresThreeTwoOneAndNotForSkippedSeconds() {
+        let (engine, spy, advance, tick) = makeEngine(
+            RoundsActivity(rounds: 2, configuredRoundSeconds: 30, configuredRestSeconds: 5))
+        engine.start()
+        tick(30); advance()                      // rest begins; seconds 27-29 crossed
+        XCTAssertEqual(spy.countdowns, [3, 2, 1])
+
+        engine.skip()                            // rest → work: nothing counted in between
+        XCTAssertEqual(spy.countdowns, [3, 2, 1])
+    }
+
+    func testSkipJumpsToNextPhaseFiringOnlyTheBoundaryCue() {
+        let (engine, spy, advance, tick) = makeEngine(
+            RoundsActivity(rounds: 2, configuredRoundSeconds: 30, configuredRestSeconds: 5))
+        engine.start()
+        tick(3); advance()
+
+        engine.skip()
+        XCTAssertEqual(engine.phase, .rest)
+        XCTAssertEqual(engine.remaining, 5)
+        XCTAssertEqual(spy.log, ["begin", "start", "end"])
+
+        engine.skip()
+        XCTAssertEqual(engine.phase, .work)
+        XCTAssertEqual(engine.round, 2)
+        XCTAssertEqual(spy.log, ["begin", "start", "end", "start"])
+    }
+
+    func testSkipIsUnavailableOnTheLastWorkPeriod() {
+        let (engine, _, _, _) = makeEngine(
+            RoundsActivity(rounds: 1, configuredRoundSeconds: 10, configuredRestSeconds: 5))
+        engine.start()
+        XCTAssertFalse(engine.canSkip)
+    }
+
+    func testSkipWhilePausedStaysPausedAndRingsOnResume() {
+        let (engine, spy, advance, tick) = makeEngine(
+            RoundsActivity(rounds: 2, configuredRoundSeconds: 30, configuredRestSeconds: 5))
+        engine.start()
+        tick(3); advance()
+        engine.togglePause()
+
+        engine.skip()
+        XCTAssertEqual(engine.runState, .paused)
+        XCTAssertEqual(engine.phase, .rest)
+        XCTAssertEqual(engine.remaining, 5)
+        XCTAssertEqual(spy.log, ["begin", "start"])
+
+        tick(7)
+        engine.togglePause()
+        advance()
+        XCTAssertEqual(engine.phase, .rest)
+        XCTAssertEqual(engine.remaining, 5)
+        XCTAssertEqual(spy.log, ["begin", "start", "end"])
     }
 
     func testRunsThroughEveryBoundaryInOrder() {

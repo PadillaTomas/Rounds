@@ -13,6 +13,8 @@ protocol CuePlaying {
     func tenSecondWarning()
     /// End-of-fight bell — the last round finished.
     func sessionFinished()
+    /// Three, two, one before a phase change.
+    func countdown(_ secondsLeft: Int)
     /// The timer screen appeared — grab the audio session, prime the haptics.
     func sessionDidBegin()
     /// The timer screen went away — release the audio session.
@@ -21,6 +23,7 @@ protocol CuePlaying {
 
 extension CuePlaying {
     func sessionFinished() { roundEnded() }
+    func countdown(_ secondsLeft: Int) {}
     func sessionDidBegin() {}
     func sessionDidEnd() {}
 }
@@ -54,6 +57,8 @@ final class CuePlayer: NSObject, CuePlaying, AVAudioPlayerDelegate {
     /// runs so the timer keeps ticking in the background.
     private let muted: Bool
 
+    private let palette: SoundPalette
+
     private let audioQueue = DispatchQueue(label: "com.padillatomas.rounds.audio-session")
 
     /// How many cue sounds are currently holding the duck open. Only ever
@@ -69,23 +74,44 @@ final class CuePlayer: NSObject, CuePlaying, AVAudioPlayerDelegate {
 
     private var interruptionObserver: NSObjectProtocol?
 
-    init(dimsOtherAudio: Bool = true, muted: Bool = false) {
+    init(dimsOtherAudio: Bool = true, muted: Bool = false, palette: SoundPalette = .boxing) {
         self.dimsOtherAudio = dimsOtherAudio
         self.muted = muted
+        self.palette = palette
         super.init()
     }
 
     deinit { stopObservingInterruptions() }
 
-    /// Every bell — round start, round end, end of fight — is the same recorded
-    /// double bell-hit. Synth fallback only if the bundled file is missing.
-    private lazy var bell: AVAudioPlayer? = {
-        let player = BundledSound.player("final-bell", ext: "mp3", volume: 0.70)
-            ?? ToneSynth.bell(strikes: 3, gap: 0.01, decay: 1, volume: 1)
-        player?.delegate = self
-        return player
+    private struct Sounds {
+        var start, end, final, warn, tick: AVAudioPlayer?
+        var bells: [AVAudioPlayer?] { [start, end, final] }
+        var all: [AVAudioPlayer?] { bells + [warn, tick] }
+    }
+
+    /// Boxing: every bell is the same recorded double bell-hit (synth fallback
+    /// only if the bundled file is missing), plus the ten-second clap.
+    /// Countdown: synthesised beeps — a tick for 3-2-1, a high tone to go, a
+    /// lower one for rest, a long one to finish.
+    private lazy var sounds: Sounds = {
+        var sounds: Sounds
+        switch palette {
+        case .boxing:
+            let bell = BundledSound.player("final-bell", ext: "mp3", volume: 0.70)
+                ?? ToneSynth.bell(strikes: 3, gap: 0.01, decay: 1, volume: 1)
+            sounds = Sounds(start: bell, end: bell, final: bell,
+                            warn: ToneSynth.clap(volume: 1), tick: nil)
+        case .countdown:
+            sounds = Sounds(
+                start: ToneSynth.beep(frequency: 1320, seconds: 0.7, volume: 0.8),
+                end: ToneSynth.beep(frequency: 880, seconds: 0.7, volume: 0.8),
+                final: ToneSynth.beep(frequency: 1320, seconds: 1.4, volume: 0.8),
+                warn: nil,
+                tick: ToneSynth.beep(frequency: 880, seconds: 0.12, volume: 0.8))
+        }
+        sounds.bells.forEach { $0?.delegate = self }
+        return sounds
     }()
-    private lazy var warnClap = ToneSynth.clap(volume: 1)
 
     /// Inaudible; loops forever. Keeps the run loop alive in the background.
     private lazy var keepAlive: AVAudioPlayer? = {
@@ -97,14 +123,14 @@ final class CuePlayer: NSObject, CuePlaying, AVAudioPlayerDelegate {
     /// Play one cue sound. No-op when muted. When dimming is on, other audio is
     /// ducked just for the length of this sound (plus a short tail) and released
     /// once every overlapping cue has finished.
-    private func play(_ player: AVAudioPlayer?) {
+    private func play(_ player: AVAudioPlayer?, duck: Bool = true) {
         guard !muted, let player else { return }
         // Off the main thread: when the audio server is stalled or absent (a
         // wedged Simulator, a device mid-route-change) `play()` can block the
         // caller for seconds — and cues arrive on the timer's run loop.
         audioQueue.async { [weak self] in
             guard let self else { return }
-            if self.dimsOtherAudio {
+            if self.dimsOtherAudio, duck {
                 self.duckHolds += 1
                 self.setDuck(true)
                 let hold = max(0.4, player.duration) + 0.3
@@ -130,17 +156,27 @@ final class CuePlayer: NSObject, CuePlaying, AVAudioPlayerDelegate {
 
     // MARK: CuePlaying
 
-    func roundStarted()     { play(bell); Haptics.buzz(0.45) }
-    func roundEnded()       { play(bell); Haptics.buzz(0.55) }
-    func tenSecondWarning() { play(warnClap); Haptics.tap(times: 3) }
-    func sessionFinished()  { play(bell); Haptics.buzz(0.6, times: 3) }
+    func roundStarted()     { play(sounds.start); Haptics.buzz(0.45) }
+    func roundEnded()       { play(sounds.end); Haptics.buzz(0.55) }
+    func tenSecondWarning() {
+        guard sounds.warn != nil else { return }
+        play(sounds.warn)
+        Haptics.tap(times: 3)
+    }
+    func sessionFinished()  { play(sounds.final); Haptics.buzz(0.6, times: 3) }
+
+    func countdown(_ secondsLeft: Int) {
+        guard palette == .countdown else { return }
+        play(sounds.tick, duck: false)
+        Haptics.tap(times: 1)
+    }
 
     func sessionDidBegin() {
         // Resolve the lazy players on the calling thread (so their initialisers
         // aren't raced), but do every audio-server call on the background queue —
         // `setActive` / `prepareToPlay` / `play` all block while the server is
         // starting, and none of it may stall the UI.
-        let players = [bell, warnClap, keepAlive]
+        let players = sounds.all + [keepAlive]
         let loop = keepAlive
         audioQueue.async {
             let session = AVAudioSession.sharedInstance()
@@ -163,7 +199,7 @@ final class CuePlayer: NSObject, CuePlaying, AVAudioPlayerDelegate {
         // delegate, holding this object alive even if the timer screen is gone.
         audioQueue.async { [weak self] in
             guard let self else { return }
-            if self.bell?.isPlaying == true {
+            if self.sounds.bells.contains(where: { $0?.isPlaying == true }) {
                 self.endAfterBell = true
                 CuePlayer.ringingOut = self
             } else {
@@ -212,10 +248,10 @@ final class CuePlayer: NSObject, CuePlaying, AVAudioPlayerDelegate {
                   let raw = note.userInfo?[AVAudioSessionInterruptionTypeKey] as? UInt,
                   AVAudioSession.InterruptionType(rawValue: raw) == .ended
             else { return }
-            let bell = self.bell, loop = self.keepAlive
+            let start = self.sounds.start, loop = self.keepAlive
             self.audioQueue.async {
                 try? AVAudioSession.sharedInstance().setActive(true)
-                bell?.prepareToPlay()
+                start?.prepareToPlay()
                 loop?.play()
             }
         }

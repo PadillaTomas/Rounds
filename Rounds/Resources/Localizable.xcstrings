@@ -114,6 +114,50 @@
         }
       }
     },
+    "settings.palette.boxing" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Boxing"
+          }
+        }
+      }
+    },
+    "settings.palette.boxing.caption" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A ringside bell for every round and a wooden clap ten seconds before the round ends."
+          }
+        }
+      }
+    },
+    "settings.palette.countdown" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Countdown"
+          }
+        }
+      }
+    },
+    "settings.palette.countdown.caption" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Beeps count you in — 3, 2, 1 — then a high tone to go and a lower one for rest."
+          }
+        }
+      }
+    },
     "settings.saveWorkout" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -392,6 +436,61 @@
         }
       }
     },
+    "timer.skip" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Skip"
+          }
+        }
+      }
+    },
+    "timer.skip.cancel" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Not now"
+          }
+        }
+      }
+    },
+    "timer.skip.confirm" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Skip"
+          }
+        }
+      }
+    },
+    "timer.skip.message" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Your workout is paused. You'll jump to the next interval and stay paused until you tap Resume."
+          }
+        }
+      }
+    },
+    "timer.skip.title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Skip ahead?"
+          }
+        }
+      }
+    },
     "timer.stop" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -425,6 +524,17 @@
         }
       }
     },
+    "timer.stop.messagePaused" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Your workout is paused. Stopping ends it here."
+          }
+        }
+      }
+    },
     "timer.stop.resume" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -432,6 +542,17 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Keep going"
+          }
+        }
+      }
+    },
+    "timer.stop.stay" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Stay paused"
           }
         }
       }

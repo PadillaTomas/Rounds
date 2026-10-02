@@ -35,4 +35,6 @@ enum Cue: Equatable {
     case tenSecondWarning
     /// End-of-fight bell — the final round's work period ended.
     case fightEnd
+    /// Three, two, one — seconds left before the phase changes.
+    case countdown(Int)
 }

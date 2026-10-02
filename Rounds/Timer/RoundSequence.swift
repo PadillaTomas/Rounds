@@ -57,7 +57,7 @@ struct RoundSequence {
 
     /// The cue that fires the instant the clock reaches `elapsed` seconds, or
     /// `nil`. Bells at phase boundaries; a clap ten seconds before a work period
-    /// ends.
+    /// ends; a 3-2-1 before every phase change.
     func cue(onCrossing elapsed: Int) -> Cue? {
         guard elapsed >= 0 else { return nil }
         guard elapsed > 0 else { return .roundStart }   // the first bell
@@ -71,6 +71,7 @@ struct RoundSequence {
         if now.phase == .work, !now.isFinished, roundSeconds > 10, now.remaining == 10 {
             return .tenSecondWarning
         }
+        if !now.isFinished, now.remaining <= 3 { return .countdown(now.remaining) }
         return nil
     }
 }
