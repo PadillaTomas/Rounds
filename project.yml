@@ -16,9 +16,9 @@ settings:
     STRING_CATALOG_GENERATE_SYMBOLS: YES
     # Marketing version (App Store) and build number. Bump MARKETING_VERSION per
     # release; bump CURRENT_PROJECT_VERSION for every upload of the same version.
-    # 1.1.0 — a free UI-refresh + fixes update; the paid 2.0 line (paywall,
-    # history, calendar, health, share) stays on develop, not in this build.
-    MARKETING_VERSION: "1.1.0"
+    # 1.2.0 — a free update built from live-user feedback (RO-24); the paid 2.0
+    # line (paywall, history, calendar, health, share) is not in this build.
+    MARKETING_VERSION: "1.2.0"
     CURRENT_PROJECT_VERSION: "1"
     # DEVELOPMENT_TEAM is intentionally not set. CODE_SIGN_STYLE = Automatic
     # resolves the one team on the account; Xcode stores the pick in the

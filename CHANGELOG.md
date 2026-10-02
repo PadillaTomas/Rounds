@@ -4,6 +4,27 @@ Internal, human-readable record of what shipped in each Rounds release.
 Loosely follows [Keep a Changelog](https://keepachangelog.com/); the git
 history (and Jira, for ticketed work) is the source of truth for detail.
 
+## [1.2.0] — in TestFlight
+
+Free update built from live-user feedback (RO-24). Still no paywall.
+
+### Added
+- **Skip** button on the timer: jumps to the next interval, also while
+  paused (it stays paused, and the bell rings on resume). Skip and Stop ask
+  for confirmation when the workout is paused.
+- **Countdown** sound palette (Settings > Audio): beeps at 3, 2, 1 before
+  every interval change, a high tone to go, a lower tone for rest and a long
+  tone at the end. Boxing (bell and ten-second clap) stays the default.
+- **Lock Screen / Dynamic Island Live Activity**: phase, round and a live
+  countdown, with Pause/Resume and Skip buttons that work while the phone is
+  locked. New `RoundsWidgets` extension target.
+
+### Fixed
+- The "Get ready" countdown no longer freezes when the phone locks during it:
+  the audio keep-alive now starts when the timer screen opens, and the
+  countdown is deadline-based.
+- The ten-second haptic now fires only when that cue has a sound (Boxing).
+
 ## [1.1.0] — submitted 2026-09-16
 
 A visual refresh plus fixes learned from live-testing 1.0. **No paywall, no
