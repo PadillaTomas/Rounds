@@ -148,6 +148,7 @@ final class RoundTimerEngine {
         case .roundEnd:         cues.roundEnded()
         case .tenSecondWarning: cues.tenSecondWarning()
         case .fightEnd:         cues.sessionFinished()
+        case .countdown(let n): cues.countdown(n)
         case nil:               break
         }
     }

@@ -42,9 +42,18 @@ final class RoundSequenceTests: XCTestCase {
 
     func testNoCueMidPhase() {
         XCTAssertNil(twoRounds.cue(onCrossing: 3))
-        XCTAssertNil(twoRounds.cue(onCrossing: 7))
-        XCTAssertNil(twoRounds.cue(onCrossing: 12))
+        XCTAssertNil(twoRounds.cue(onCrossing: 6))
+        XCTAssertNil(twoRounds.cue(onCrossing: 11))
         XCTAssertNil(twoRounds.cue(onCrossing: 20))
+    }
+
+    func testCountdownThreeTwoOneBeforeEveryPhaseChange() {
+        XCTAssertEqual((7...9).map { twoRounds.cue(onCrossing: $0) },
+                       [.countdown(3), .countdown(2), .countdown(1)])      // work → rest
+        XCTAssertEqual((12...14).map { twoRounds.cue(onCrossing: $0) },
+                       [.countdown(3), .countdown(2), .countdown(1)])      // rest → work
+        XCTAssertEqual((22...24).map { twoRounds.cue(onCrossing: $0) },
+                       [.countdown(3), .countdown(2), .countdown(1)])      // last round → end
     }
 
     func testTenSecondWarningOnlyWhenTheRoundIsLongerThanTenSeconds() {

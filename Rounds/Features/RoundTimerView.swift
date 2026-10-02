@@ -27,11 +27,12 @@ struct RoundTimerView: View {
     /// A breather to set the phone down and get into stance before the first bell.
     private static let leadInSeconds = 5
 
-    init(activity: RoundsActivity, dimOtherAudio: Bool = true, muteCues: Bool = false) {
+    init(activity: RoundsActivity, dimOtherAudio: Bool = true, muteCues: Bool = false,
+         palette: SoundPalette = .boxing) {
         self.activity = activity
         _engine = State(wrappedValue: RoundTimerEngine(
             activity: activity,
-            cues: CuePlayer(dimsOtherAudio: dimOtherAudio, muted: muteCues)
+            cues: CuePlayer(dimsOtherAudio: dimOtherAudio, muted: muteCues, palette: palette)
         ))
     }
 

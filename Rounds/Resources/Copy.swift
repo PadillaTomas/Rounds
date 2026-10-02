@@ -98,6 +98,14 @@ enum Copy {
             t("settings.saveWorkout", "Save your last workout")
         }
         static var audio: String { t("settings.audio", "Audio") }
+        static var paletteBoxing: String { t("settings.palette.boxing", "Boxing") }
+        static var paletteCountdown: String { t("settings.palette.countdown", "Countdown") }
+        static var paletteBoxingCaption: String {
+            t("settings.palette.boxing.caption", "A ringside bell for every round and a wooden clap ten seconds before the round ends.")
+        }
+        static var paletteCountdownCaption: String {
+            t("settings.palette.countdown.caption", "Beeps count you in — 3, 2, 1 — then a high tone to go and a lower one for rest.")
+        }
         static var muteCues: String { t("settings.muteCues", "Silent workout") }
         static var muteCuesCaption: String {
             t("settings.muteCuesCaption", "No bell or clap — just the vibration for every round and warning. For a crowded gym or a quiet room.")

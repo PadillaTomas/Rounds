@@ -4,6 +4,8 @@ import XCTest
 /// Records every cue the engine fires, in order.
 private final class CueSpy: CuePlaying {
     private(set) var log: [String] = []
+    private(set) var countdowns: [Int] = []
+    func countdown(_ secondsLeft: Int) { countdowns.append(secondsLeft) }
     func roundStarted()     { log.append("start") }
     func roundEnded()       { log.append("end") }
     func tenSecondWarning() { log.append("warn") }
@@ -49,6 +51,17 @@ final class RoundTimerEngineTests: XCTestCase {
         engine.prepare()
         engine.stop()
         XCTAssertEqual(spy.log, ["begin", "didEnd"])
+    }
+
+    func testCountdownFiresThreeTwoOneAndNotForSkippedSeconds() {
+        let (engine, spy, advance, tick) = makeEngine(
+            RoundsActivity(rounds: 2, configuredRoundSeconds: 30, configuredRestSeconds: 5))
+        engine.start()
+        tick(30); advance()                      // rest begins; seconds 27-29 crossed
+        XCTAssertEqual(spy.countdowns, [3, 2, 1])
+
+        engine.skip()                            // rest → work: nothing counted in between
+        XCTAssertEqual(spy.countdowns, [3, 2, 1])
     }
 
     func testSkipJumpsToNextPhaseFiringOnlyTheBoundaryCue() {

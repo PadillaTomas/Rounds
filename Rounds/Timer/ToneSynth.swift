@@ -31,6 +31,19 @@ enum ToneSynth {
         return player(out, volume: volume)
     }
 
+    /// A plain sine beep with a short attack and release, so it never clicks.
+    static func beep(frequency: Double, seconds: Double, volume: Float) -> AVAudioPlayer? {
+        let count = Int(sampleRate * seconds)
+        let ramp = Int(sampleRate * min(0.06, seconds / 3))
+        let attack = Int(sampleRate * 0.005)
+        let out = (0..<count).map { i -> Double in
+            let fade = min(1, Double(i) / Double(max(1, attack)),
+                           Double(count - i) / Double(max(1, ramp)))
+            return sin(2 * .pi * frequency * Double(i) / sampleRate) * fade * 0.8
+        }
+        return player(out, volume: volume)
+    }
+
     /// A short buffer of pure silence. Looped, it keeps the audio session (and
     /// so the timer's run loop) alive while the app is backgrounded / locked,
     /// without making a sound.
